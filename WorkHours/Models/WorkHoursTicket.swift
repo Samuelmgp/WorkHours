@@ -1,0 +1,94 @@
+//
+//  WorkedHoursTicket.swift
+//  WorkHours
+//
+//  Created by Samuel Garcia on 2026-09-18.
+//
+
+import Foundation
+import SwiftData
+
+enum WorkHoursRoundingOptions: Double, CaseIterable, Codable {
+    case none = 0
+    case quartHour = 15
+    case halfHour = 30
+    case hour = 60
+    
+    func getTitle() -> String {
+        switch self {
+        case .none: return "Exact Hours"
+        case .quartHour: return "Quarter Hour"
+        case .halfHour: return "Half Hour"
+        case .hour: return "Hour"
+        }
+    }
+}
+
+@Model
+final class WorkHoursTicket {
+    var payPeriod: PayPeriod?
+    
+    private var workDate: Date
+    private var startTime: Date
+    private var endTime: Date
+    
+    private var travelTimeToWork: TravelTime?
+    private var travelTimeHome: TravelTime?
+    
+    private var hoursWorked: TimeInterval
+    private var totalTravelDurration: TimeInterval?
+    private var roundingOption: WorkHoursRoundingOptions
+    
+    init(workDate: Date, startTime: Date, endTime: Date = .now, roundingOption: WorkHoursRoundingOptions = .none) {
+        self.workDate = workDate
+        self.startTime = startTime
+        self.endTime = endTime
+        self.hoursWorked = endTime.timeIntervalSince(startTime)
+        self.roundingOption = roundingOption
+    }
+    
+    convenience init(workingHours: WorkingHours) {
+        self.init(workDate: workingHours.date, startTime: workingHours.date, endTime: .now)
+    }
+    
+    func update(workDate: Date, endTime: Date, roundingOption: WorkHoursRoundingOptions) {
+        self.workDate = workDate
+        self.startTime = workDate
+        self.endTime = endTime
+        self.hoursWorked = endTime.timeIntervalSince(self.startTime)
+        self.roundingOption = roundingOption
+    }
+    
+    func getWorkDate() -> Date {
+        return self.workDate
+    }
+    
+    func getStartTime() -> Date {
+        return self.startTime
+    }
+    
+    func getEndTime() -> Date {
+        return self.endTime
+    }
+    
+    func getRoundingOption() -> WorkHoursRoundingOptions {
+        return self.roundingOption
+    }
+    
+    func getHoursWorked() -> Double {
+        let minutes = hoursWorked / 60.0
+
+        guard self.roundingOption.rawValue != 0 else {
+            return minutes / 60.0
+        }
+
+        let roundedMinutes = ceil(minutes / self.roundingOption.rawValue) * self.roundingOption.rawValue
+
+        return roundedMinutes / 60.0
+    }
+    
+    func getHoursWorkedFormattedHM() -> String {
+        return Duration.seconds(hoursWorked).formatted(.time(pattern: .hourMinute))
+    }
+    
+}
