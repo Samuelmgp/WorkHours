@@ -8,6 +8,113 @@
 import Foundation
 import SwiftData
 
+struct PayPeriodSnapshot {
+    let payPeriodStart: Date
+    let payPeriodEnd: Date
+
+    init?(payPeriodStart: Date, payPeriodEnd: Date, calendar: Calendar = .current) {
+        guard payPeriodStart < payPeriodEnd,
+              let start = calendar.dateInterval(
+                  of: .day,
+                  for: payPeriodStart
+              )?.start,
+              let end = calendar.dateInterval(
+                  of: .day,
+                  for: payPeriodEnd
+              )?.end
+        else {
+            return nil
+        }
+
+        self.payPeriodStart = start
+        self.payPeriodEnd = end
+    }
+
+    func getNextPayPeriod(payPeriodFrequency: payFrequency, calendar: Calendar = .current ) -> PayPeriodSnapshot? {
+        let nextStart: Date
+        let nextEnd: Date
+
+        switch payPeriodFrequency {
+        case .daily:
+            guard
+                let start = calendar.date(
+                    byAdding: .day,
+                    value: 1,
+                    to: payPeriodStart
+                ),
+                let end = calendar.date(
+                    byAdding: .day,
+                    value: 1,
+                    to: payPeriodEnd
+                )
+            else { return nil }
+
+            nextStart = start
+            nextEnd = end
+
+        case .weekly:
+            guard
+                let start = calendar.date(
+                    byAdding: .day,
+                    value: 7,
+                    to: payPeriodStart
+                ),
+                let end = calendar.date(
+                    byAdding: .day,
+                    value: 7,
+                    to: payPeriodEnd
+                )
+            else { return nil }
+
+            nextStart = start
+            nextEnd = end
+
+        case .biweekly:
+            guard
+                let start = calendar.date(
+                    byAdding: .day,
+                    value: 14,
+                    to: payPeriodStart
+                ),
+                let end = calendar.date(
+                    byAdding: .day,
+                    value: 14,
+                    to: payPeriodEnd
+                )
+            else { return nil }
+
+            nextStart = start
+            nextEnd = end
+
+        case .monthly:
+            guard
+                let start = calendar.date(
+                    byAdding: .month,
+                    value: 1,
+                    to: payPeriodStart
+                ),
+                let end = calendar.date(
+                    byAdding: .month,
+                    value: 1,
+                    to: payPeriodEnd
+                )
+            else { return nil }
+
+            nextStart = start
+            nextEnd = end
+
+        case .none:
+            return nil
+        }
+
+        return PayPeriodSnapshot(payPeriodStart: nextStart, payPeriodEnd: nextEnd, calendar: calendar)
+    }
+
+    func contains(_ date: Date) -> Bool {
+        date >= payPeriodStart && date < payPeriodEnd
+    }
+}
+
 @Model
 final class PayPeriod {
     var payPeriodStartDate: Date
