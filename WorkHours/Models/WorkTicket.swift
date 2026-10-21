@@ -24,27 +24,33 @@ enum WorkHoursRoundingOptions: Double, CaseIterable, Codable {
     }
 }
 
+enum PayArrangement {
+    case hourly(rate: Double)
+    case lumpSum(amount: Double)
+}
+
 @Model
-final class WorkHoursTicket {
+final class WorkTicket {
     var payPeriod: PayPeriod?
     
     private var workDate: Date
     private var startTime: Date
     private var endTime: Date
     
-    private var travelTimeToWork: TravelTime?
-    private var travelTimeHome: TravelTime?
+    @Relationship(deleteRule: .cascade, maximumModelCount: 2, inverse: \TravelTime.workHourTicket)
+    private var travelTimes: [TravelTime]
     
     private var hoursWorked: TimeInterval
     private var totalTravelDurration: TimeInterval?
     private var roundingOption: WorkHoursRoundingOptions
     
-    init(workDate: Date, startTime: Date, endTime: Date = .now, roundingOption: WorkHoursRoundingOptions = .none) {
+    init(workDate: Date, startTime: Date, travelTimes: [TravelTime] = [], endTime: Date = .now, roundingOption: WorkHoursRoundingOptions = .none) {
         self.workDate = workDate
         self.startTime = startTime
         self.endTime = endTime
         self.hoursWorked = endTime.timeIntervalSince(startTime)
         self.roundingOption = roundingOption
+        self.travelTimes = travelTimes
     }
     
     convenience init(workingHours: WorkingHours) {
