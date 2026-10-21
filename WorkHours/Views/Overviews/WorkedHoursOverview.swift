@@ -13,7 +13,7 @@ struct WorkedHoursOverview: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     
-    @Bindable var ticket: WorkHoursTicket
+    @Bindable var ticket: WorkTicket
     
     @State var isEditing: Bool = false
     @State var isProcessing: Bool = false
@@ -99,7 +99,7 @@ struct WorkedHoursOverview: View {
 }
 
 #Preview {
-    @Previewable var ticket = WorkHoursTicket(workDate: .now, startTime: .now)
+    @Previewable var ticket = WorkTicket(workDate: .now, startTime: .now, payArrangement: .hourly(rate: 20))
     
     NavigationView {
         WorkedHoursOverview(ticket: ticket)

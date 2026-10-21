@@ -8,14 +8,23 @@
 import Foundation
 import SwiftData
 
+enum TravelType: String, Codable {
+    case toWork
+    case toDestination
+}
+
 @Model
 final class TravelTime {
+    var workHourTicket: WorkTicket?
+    
     private var travelTimeStart: Date
+    private var travelType: TravelType
     private var travelTimeEnd: Date?
     private var duration: TimeInterval?
     
-    init(travelTimeStart: Date = .now, travelTimeEnd: Date? = nil, duration: TimeInterval? = nil) {
+    init(travelTimeStart: Date = .now, travelType: TravelType = .toDestination, travelTimeEnd: Date? = nil, duration: TimeInterval? = nil) {
         self.travelTimeStart = travelTimeStart
+        self.travelType = travelType
         self.travelTimeEnd = travelTimeEnd
         self.duration = duration
     }

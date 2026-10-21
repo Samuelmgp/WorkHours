@@ -53,7 +53,7 @@ struct PayPeriodCreationSheet: View {
             startDate = endDate
             endDate = t
         }
-        let newPayPeriod = PayPeriod(payPeriodStartDate: startDate, payPeriodEndDate: endDate, payRate: wage)
+        let newPayPeriod = PayPeriod(payPeriodStartDate: startDate, payPeriodEndDate: endDate, wage: wage)
         
         context.insert(newPayPeriod)
         do {

@@ -54,7 +54,7 @@ struct UserInformation: View {
                     }
                 }
                 Picker("Pay Period Frequency", selection: $user.paidFrequency){
-                    ForEach(payFrequency.allCases, id: \.self){ v in
+                    ForEach(PayFrequency.allCases, id: \.self){ v in
                         Text(v.rawValue)
                     }
                 }

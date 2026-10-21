@@ -18,7 +18,7 @@ struct UserCreationView: View {
     
     @State var payPeriodStartDate: Date = .now
     @State var payPeriodEndDate: Date = .now
-    @State var payPeriodFrequency: payFrequency = .none
+    @State var payPeriodFrequency: PayFrequency = .none
     @State var hoursRounding: WorkHoursRoundingOptions = .none
     @State var wageFieldValue: Double = 0.0
     
@@ -45,7 +45,7 @@ struct UserCreationView: View {
             
             Section("Pay Period Advanced Details"){
                 Picker("Payment Frequency", selection: $payPeriodFrequency){
-                    ForEach(payFrequency.allCases, id: \.self){ t in
+                    ForEach(PayFrequency.allCases, id: \.self){ t in
                         Text(t.rawValue)
                     }
                 }
@@ -84,7 +84,7 @@ struct UserCreationView: View {
         
         let user = UserManager.shared.createUser(firstName: firstName, lastName: lastName, employer: employer, payweekStart: payPeriodStartDate, payweekEnd: payPeriodEndDate, paidFrequency: payPeriodFrequency, hourRounding: hoursRounding, wage: wageFieldValue, trackTravelTime: travelTimeTracking)
         
-        let firstPayPeriod = PayPeriod(payPeriodStartDate: payPeriodStartDate, payPeriodEndDate: payPeriodEndDate, payRate: wageFieldValue)
+        let firstPayPeriod = PayPeriod(payPeriodStartDate: payPeriodStartDate, payPeriodEndDate: payPeriodEndDate, wage: wageFieldValue)
         
         if (firstPayPeriod.payPeriodEndDate < Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: .now)!){
             user?.updateCurrentPayPeriod()

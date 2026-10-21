@@ -47,7 +47,7 @@ struct PayPeriodOverview: View {
                 HStack(alignment: .center){
                     Text("Accummulated Hours:")
                     Spacer()
-                    Text("\(payPeriod.calculateHours().formatted(.number.precision(.fractionLength(2))))")
+                    Text("")
                 }
                 HStack(alignment: .center){
                     Text("Estimated Pay:")
@@ -57,7 +57,7 @@ struct PayPeriodOverview: View {
                 HStack(alignment: .center) {
                     Text("Pay Rate:")
                     Spacer()
-                    Text("\(payPeriod.payRate != 0 ? payPeriod.payRate.formatted(.currency(code: "cad")) + " / Hour" : "Variable")")
+                    Text("")
                 }
             }
             .listRowBackground(Rectangle().foregroundStyle(.clear))
@@ -121,7 +121,7 @@ struct PayPeriodOverview: View {
 }
 
 #Preview {
-    @Previewable var payPeriod = PayPeriod(payPeriodStartDate: .now, payPeriodEndDate: .now, workTickets: [WorkHoursTicket(workDate: .now, startTime: .now.addingTimeInterval(-28800.0)),])
+    @Previewable var payPeriod = PayPeriod(payPeriodStartDate: .now, payPeriodEndDate: .now, workTickets: [WorkTicket(workDate: .now, startTime: .now.addingTimeInterval(-28800.0), payArrangement: .hourly(rate: 20.0))])
     NavigationView {
         PayPeriodOverview(payPeriod: payPeriod)
     }

@@ -9,13 +9,13 @@ import SwiftUI
 
 struct WorkSummaryComponent: View {
     
-    @Bindable var ticket: WorkHoursTicket
+    @Bindable var ticket: WorkTicket
     var date: String
     let hours: String
     var timeIn: String
     var timeOut: String
     
-    init(ticket: WorkHoursTicket) {
+    init(ticket: WorkTicket) {
         self.ticket = ticket
         self.date = ticket.getWorkDate().formatted(date: .numeric, time: .omitted)
         self.hours = ticket.getHoursWorkedFormattedHM()
@@ -41,7 +41,7 @@ struct WorkSummaryComponent: View {
 let payPeriod: PayPeriod = PayPeriod(payPeriodStartDate: .now, payPeriodEndDate: .now)
 #Preview {
     
-    @Previewable var ticket: WorkHoursTicket = WorkHoursTicket(workDate: .now, startTime: .now)
+    @Previewable var ticket: WorkTicket = WorkTicket(workDate: .now, startTime: .now, payArrangement: .hourly(rate: 20))
     
     WorkSummaryComponent(ticket: ticket)
 }

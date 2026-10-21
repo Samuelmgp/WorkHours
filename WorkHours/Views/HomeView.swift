@@ -103,7 +103,7 @@ struct HomeView: View {
             return
         }
         
-        let ticket = WorkHoursTicket(workDate: check.date, startTime: check.date, roundingOption: hoursRounding)
+        let ticket = WorkTicket(workDate: check.date, startTime: check.date, payArrangement: .hourly(rate: 0), roundingOption: hoursRounding)
         
         let workDate = ticket.getWorkDate()
         

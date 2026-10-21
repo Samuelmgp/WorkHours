@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 import Combine
 
-enum payFrequency: String, CaseIterable, Codable {
+enum PayFrequency: String, CaseIterable, Codable {
     case none = "None"
     case daily = "Daily"
     case weekly = "Weekly"
@@ -28,14 +28,14 @@ final class UserModel: Codable, Observable {
     var nextPayPeriodStartDate: Date?
     var nextPayPeriodEndDate: Date?
     
-    var paidFrequency: payFrequency
+    var paidFrequency: PayFrequency
     var hourRounding: WorkHoursRoundingOptions
     var wage: Double
     
     var trackTravelTime: Bool
     
     
-    init(firstName: String, lastName: String, employer: String, payweekStart: Date, payweekEnd: Date, paidFrequency: payFrequency = .none, hourRounding: WorkHoursRoundingOptions = .none, wage: Double = 0.0, trackTravelTime: Bool = false) {
+    init(firstName: String, lastName: String, employer: String, payweekStart: Date, payweekEnd: Date, paidFrequency: PayFrequency = .none, hourRounding: WorkHoursRoundingOptions = .none, wage: Double = 0.0, trackTravelTime: Bool = false) {
         self.firstName = firstName
         self.lastName = lastName
         self.employer = employer
@@ -79,7 +79,7 @@ final class UserModel: Codable, Observable {
         guard let container = try? ModelContainer(for: PayPeriod.self) else { setNextPayPeriod(); return }
         let context = ModelContext(container)
         
-        let newPayPeriod = PayPeriod(payPeriodStartDate: self.currentPayPeriodStartDate, payPeriodEndDate: self.currentPayPeriodEndDate, payRate: self.wage)
+        let newPayPeriod = PayPeriod(payPeriodStartDate: self.currentPayPeriodStartDate, payPeriodEndDate: self.currentPayPeriodEndDate, wage: self.wage)
         
         context.insert(newPayPeriod)
         

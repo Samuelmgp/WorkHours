@@ -13,7 +13,7 @@ struct WorkHoursApp: App {
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            PayPeriod.self
+            EmployerModel.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

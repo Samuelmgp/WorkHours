@@ -46,7 +46,7 @@ struct WorkedHoursCreationSheet: View {
                     endTime = t
                 }
                 
-                let ticket = WorkHoursTicket(workDate: startTime, startTime: startTime, endTime: endTime, roundingOption: roundingOption)
+                let ticket = WorkTicket(workDate: startTime, startTime: startTime, endTime: endTime, payArrangement: .hourly(rate: 0), roundingOption: roundingOption)
                 let workDate = ticket.getWorkDate()
                 
                 let descriptor = FetchDescriptor<PayPeriod>(

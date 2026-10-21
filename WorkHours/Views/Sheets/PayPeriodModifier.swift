@@ -14,10 +14,12 @@ struct PayPeriodModifier: View {
     @Environment(\.dismiss) private var dismiss
     @Bindable var payPeriod: PayPeriod
     
+    @State private var wage: Double = 0.0
+    
     var body: some View {
         List {
             Section("Wage"){
-                WageInput(value: $payPeriod.payRate)
+                WageInput(value: $wage)
                 Text("Note: A Wage of $0.00 will set this as a variable pay. To obtain estimated pay each work day must be modified with associated pay rate. Modifying the pay rate will update all the pay days associated with this pay period.")
                     .font(.footnote)
                     .foregroundStyle(.red)

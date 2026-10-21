@@ -30,16 +30,17 @@ final class EmployerModel {
     private var employerName: String
     private var employedSince: Date
     
-    private var payPeriodFrequency: payFrequency
+    private var payPeriodFrequency: PayFrequency
     private var wage: Double?
     private var hourRounding: WorkHoursRoundingOptions
     
     private var currentPayPeriodStart: Date?
     private var currentPayPeriodEnd: Date?
     
-    @Relationship(deleteRule: .cascade) private var PayPeriods: [PayPeriod]
+    @Relationship(deleteRule: .cascade, inverse: \PayPeriod.employer)
+    private var PayPeriods: [PayPeriod]
     
-    init(employerName: String, employedSince: Date, payPeriodFrequency: payFrequency, wage: Double? = nil, hourRounding: WorkHoursRoundingOptions, currentPayPeriodStart: Date, currentPayPeriodEnd: Date, PayPeriods: [PayPeriod] = []) {
+    init(employerName: String, employedSince: Date, payPeriodFrequency: PayFrequency, wage: Double? = nil, hourRounding: WorkHoursRoundingOptions, currentPayPeriodStart: Date, currentPayPeriodEnd: Date, PayPeriods: [PayPeriod] = []) {
         self.employerName = employerName
         self.employedSince = employedSince
         self.payPeriodFrequency = payPeriodFrequency
@@ -71,7 +72,7 @@ final class EmployerModel {
         return snapshot.getNextPayPeriod(payPeriodFrequency: self.payPeriodFrequency)
     }
     
-    func updatePayPeriodFrequency(payFrequency: payFrequency){
+    func updatePayPeriodFrequency(payFrequency: PayFrequency){
         self.payPeriodFrequency = payFrequency
     }
     
@@ -91,6 +92,8 @@ final class EmployerModel {
         
         // Create next pay period:
         let newPayPeriod = PayPeriod(payPeriodStartDate: future.payPeriodStart, payPeriodEndDate: future.payPeriodEnd)
+        
+        // Save
     }
     
 }

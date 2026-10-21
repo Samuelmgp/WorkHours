@@ -39,22 +39,42 @@ final class WorkTicket {
     
     @Relationship(deleteRule: .cascade, maximumModelCount: 2, inverse: \TravelTime.workHourTicket)
     private var travelTimes: [TravelTime]
-    
-    private var hoursWorked: TimeInterval
     private var totalTravelDurration: TimeInterval?
+    
+    private var payType: String
+    private var payArrangement: PayArrangement {
+        switch payType {
+        case "hourly":
+            return .hourly(rate: payAmount)
+        default:
+            return .lumpSum(amount: payAmount)
+        }
+    }
+    
+    
+    private var payAmount: Double
+    private var hoursWorked: TimeInterval
     private var roundingOption: WorkHoursRoundingOptions
     
-    init(workDate: Date, startTime: Date, travelTimes: [TravelTime] = [], endTime: Date = .now, roundingOption: WorkHoursRoundingOptions = .none) {
+    init(workDate: Date, startTime: Date, endTime: Date = .now, payArrangement: PayArrangement, travelTimes: [TravelTime] = [], roundingOption: WorkHoursRoundingOptions = .none) {
         self.workDate = workDate
         self.startTime = startTime
         self.endTime = endTime
         self.hoursWorked = endTime.timeIntervalSince(startTime)
         self.roundingOption = roundingOption
         self.travelTimes = travelTimes
+        switch(payArrangement){
+        case .hourly(let rate):
+            self.payType = "hourly"
+            self.payAmount = rate
+        case .lumpSum(let amount):
+            self.payType = "lumpSum"
+            self.payAmount = amount
+        }
     }
     
-    convenience init(workingHours: WorkingHours) {
-        self.init(workDate: workingHours.date, startTime: workingHours.date, endTime: .now)
+    convenience init(workingHours: WorkingHours, payArrangement: PayArrangement) {
+        self.init(workDate: workingHours.date, startTime: workingHours.date, endTime: .now, payArrangement: payArrangement)
     }
     
     func update(workDate: Date, endTime: Date, roundingOption: WorkHoursRoundingOptions) {
@@ -63,6 +83,15 @@ final class WorkTicket {
         self.endTime = endTime
         self.hoursWorked = endTime.timeIntervalSince(self.startTime)
         self.roundingOption = roundingOption
+    }
+    
+    func getGrossPay() -> Double {
+        switch payArrangement {
+        case .hourly(let rate):
+            return rate * getHoursWorked()
+        case .lumpSum(let amount):
+            return amount
+        }
     }
     
     func getWorkDate() -> Date {
