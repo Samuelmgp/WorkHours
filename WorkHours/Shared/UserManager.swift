@@ -26,8 +26,8 @@ final class UserManager {
     - Returns: UserModel
      *    User data. Or nil if data failed to be encoded.
      */
-    func createUser(firstName: String, lastName: String, employer: String, payweekStart: Date, payweekEnd: Date, paidFrequency: PayFrequency, hourRounding: WorkHoursRoundingOptions, wage: Double, trackTravelTime: Bool) -> UserModel? {
-        let newUser = UserModel(firstName: firstName, lastName: lastName, employer: employer, payweekStart: payweekStart, payweekEnd: payweekEnd, paidFrequency: paidFrequency, hourRounding: hourRounding, wage: wage, trackTravelTime: trackTravelTime)
+    func createUser(firstName: String, lastName: String, trackTravelTime: Bool) -> UserModel? {
+        let newUser = UserModel(firstName: firstName, lastName: lastName, trackTravelTime: trackTravelTime)
         
         guard let data = try? JSONEncoder().encode(newUser) else { return nil }
         UserDefaults.standard.set(data, forKey: USER_DATA)
@@ -75,10 +75,6 @@ final class UserManager {
      */
     func user() -> UserModel? {
         return self.currentUser
-    }
-    
-    func payPeriod() -> PayPeriod? {
-        return self.currentPayPeriod
     }
     
 }

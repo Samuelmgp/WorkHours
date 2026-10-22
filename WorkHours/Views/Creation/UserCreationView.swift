@@ -10,7 +10,8 @@ import SwiftData
 
 struct UserCreationView: View {
     
-    @Environment(\.modelContext) var context
+    @Environment(\.modelContext) private var context
+    var onCreated: () -> Void = {}
     
     @State var firstName: String = ""
     @State var lastName: String = ""
@@ -20,11 +21,9 @@ struct UserCreationView: View {
     @State var payPeriodFrequency: PayFrequency = .none
     @State var hoursRounding: WorkHoursRoundingOptions = .none
     @State var wageFieldValue: Double = 0.0
-    
     @State var travelTimeTracking: Bool = false
-    
-    @Binding var isShowingUserCreation: Bool
-    
+
+    @State private var isProcessing: Bool = false
     
     var body: some View {
         Form {
@@ -40,7 +39,7 @@ struct UserCreationView: View {
             }
             
             Button {
-                isShowingUserCreation = false
+                isProcessing = true
                 saveUser()
             } label: {
                 Text("Create User")
@@ -51,17 +50,19 @@ struct UserCreationView: View {
             .listRowBackground(EmptyView())
             .buttonStyle(.borderedProminent)
             .buttonSizing(.flexible)
-            .disabled(!isShowingUserCreation)
+            .disabled(isProcessing)
         }
-        .navigationTitle("Profile")
+        .navigationTitle("User Creation")
     }
     
     func saveUser(){
         // TODO: New User Creation Logic
+        onCreated()
     }
 }
 
 #Preview {
-    @Previewable @State var isPresented = true
-    UserCreationView(isShowingUserCreation: $isPresented)
+    NavigationView {
+        UserCreationView()
+    }
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct WorkView: View {
+struct PayPeriodView: View {
     @Environment(\.modelContext) var context
     @Query(sort: \PayPeriod.payPeriodStartDate, order: .reverse) var payPeriods: [PayPeriod] = []
     
@@ -67,6 +67,6 @@ struct WorkView: View {
 
 #Preview {
     NavigationView {
-        WorkView()
+        PayPeriodView()
     }
 }

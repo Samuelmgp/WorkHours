@@ -19,6 +19,8 @@ struct EmployerCreationView: View {
     @State private var firstPayPeriodEnd: Date = .now
     @State private var payFrequency: PayFrequency = .none
     
+    var onComplete: () -> Void = {}
+    
     var body: some View {
         Form {
             Section("Basic Information") {

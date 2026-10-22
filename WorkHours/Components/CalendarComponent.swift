@@ -87,23 +87,9 @@ struct CalendarComponent: View {
                 return Color.secondary.opacity(0.2)
             }
         }
-        // Display the current pay period:
-        guard let currentPayPeriodStart = UserManager.shared.user()?.currentPayPeriodStartDate else {
-            return defaultReturn()
-        }
+        // Restructure displaying Pay Days
         
-        guard let currentPayPeriodEnd = UserManager.shared.user()?.currentPayPeriodEndDate else {
-            return defaultReturn()
-        }
-        
-        if (currentPayPeriodStart <= day && day <= currentPayPeriodEnd){
-            if (isCurrentDate){
-                return .accentColor.opacity(0.4)
-            }
-            return .green.opacity(0.35)
-        }else {
-            return defaultReturn()
-        }
+        return defaultReturn()
     }
     
     private func textForegroundStyle(for day: Date) -> Color {

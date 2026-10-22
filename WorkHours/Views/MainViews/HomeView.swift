@@ -99,31 +99,7 @@ struct HomeView: View {
         
         guard let check = restoreActiveSession() else { return }
         
-        guard let hoursRounding = UserManager.shared.user()?.hourRounding else {
-            return
-        }
-        
-        let ticket = WorkTicket(workDate: check.date, startTime: check.date, payArrangement: .hourly(rate: 0), roundingOption: hoursRounding)
-        
-        let workDate = ticket.getWorkDate()
-        
-        let descriptor = FetchDescriptor<PayPeriod>(
-            predicate: #Predicate {
-                $0.payPeriodStartDate <= workDate && $0.payPeriodEndDate >= workDate
-            }
-        )
-        
-        do {
-            guard let payPeriod = try context.fetch(descriptor).first else { print("No pay period found for \(ticket.getWorkDate())"); return }
-            
-            ticket.payPeriod = payPeriod
-            context.insert(ticket)
-            
-            try context.save()
-            liveSession = nil
-        } catch {
-            print("Failed to clock out properly: \(error)")
-        }
+        // Restructure saving methods
         
     }
 }

@@ -23,52 +23,10 @@ struct WorkHoursApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
-    
-    @State private var user: UserModel? = UserManager.shared.loadUser()
-    @State var isShowingUserCreation = false
 
     var body: some Scene {
         WindowGroup {
-            TabView {
-                Tab("Home", systemImage: "house"){
-                    NavigationView {
-                        HomeView()
-                    }
-                }
-                
-                Tab("Pay Period", systemImage: "list.clipboard"){
-                    NavigationView {
-                        WorkView()
-                    }
-                }
-                
-                Tab("Employers", systemImage: "suitcase") {
-                    NavigationView {
-                        EmployersView()
-                    }
-                }
-                
-                Tab("Profile", systemImage: "person"){
-                    NavigationView {
-                        ProfileView(user: $user)
-                    }
-                }
-            }
-            .onChange(of: user != nil){
-                if (user == nil){
-                    isShowingUserCreation = true
-                }
-            }
-            .onAppear {
-                if (user == nil) {
-                    isShowingUserCreation = true
-                }
-            }
-            .fullScreenCover(isPresented: $isShowingUserCreation, onDismiss: {
-                self.user = UserManager.shared.loadUser()
-            }){
-                UserCreationView(isShowingUserCreation: $isShowingUserCreation)
-            }
+            ContentView()
         }
         .modelContainer(sharedModelContainer)
     }

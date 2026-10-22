@@ -40,8 +40,7 @@ struct PayPeriodCreationSheet: View {
             }
         }
         .onAppear {
-            guard let u = UserManager.shared.user() else { return }
-            wage = u.wage
+            // TODO: Set predefined conditions
         }
         .padding(.vertical, 10)
     }

@@ -77,8 +77,7 @@ struct WorkedHoursCreationSheet: View {
             .disabled(isProcessing)
         }
         .onAppear {
-            guard let hoursRounding = UserManager.shared.user()?.hourRounding else { return }
-            roundingOption = hoursRounding
+            // TODO: Set predefined conditions
         }
     }
 }
