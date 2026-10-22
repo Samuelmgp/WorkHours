@@ -79,7 +79,7 @@ final class UserModel: Codable, Observable {
         guard let container = try? ModelContainer(for: PayPeriod.self) else { setNextPayPeriod(); return }
         let context = ModelContext(container)
         
-        let newPayPeriod = PayPeriod(payPeriodStartDate: self.currentPayPeriodStartDate, payPeriodEndDate: self.currentPayPeriodEndDate, wage: self.wage)
+        let newPayPeriod = PayPeriod(payPeriodStartDate: self.currentPayPeriodStartDate, payPeriodEndDate: self.currentPayPeriodEndDate)
         
         context.insert(newPayPeriod)
         

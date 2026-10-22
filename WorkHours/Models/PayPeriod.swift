@@ -13,7 +13,7 @@ struct PayPeriodSnapshot {
     let payPeriodEnd: Date
 
     init?(payPeriodStart: Date, payPeriodEnd: Date, calendar: Calendar = .current) {
-        guard payPeriodStart < payPeriodEnd,
+        guard payPeriodStart <= payPeriodEnd,
               let start = calendar.dateInterval(
                   of: .day,
                   for: payPeriodStart
@@ -122,17 +122,19 @@ final class PayPeriod {
     
     var payPeriodStartDate: Date
     var payPeriodEndDate: Date
-    var wage: Double?
     
     @Relationship(deleteRule: .cascade, inverse: \WorkTicket.payPeriod)
     var workTickets: [WorkTicket]
     
-    init(employer: EmployerModel? = nil, payPeriodStartDate: Date, payPeriodEndDate: Date, wage: Double? = nil, workTickets: [WorkTicket] = []) {
+    init(employer: EmployerModel? = nil, payPeriodStartDate: Date, payPeriodEndDate: Date, workTickets: [WorkTicket] = []) {
         self.employer = employer
         self.payPeriodStartDate = payPeriodStartDate
         self.payPeriodEndDate = payPeriodEndDate
-        self.wage = wage
         self.workTickets = workTickets
+    }
+    
+    func getWageInformation() -> Double? {
+        return nil
     }
     
     func calculateHours() -> Double {

@@ -36,9 +36,15 @@ struct WorkHoursApp: App {
                     }
                 }
                 
-                Tab("Pay Periods", systemImage: "list.clipboard") {
+                Tab("Pay Period", systemImage: "list.clipboard"){
                     NavigationView {
                         WorkView()
+                    }
+                }
+                
+                Tab("Employers", systemImage: "suitcase") {
+                    NavigationView {
+                        EmployersView()
                     }
                 }
                 

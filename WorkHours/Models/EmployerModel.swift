@@ -11,6 +11,25 @@ import SwiftData
 struct EmployerDetails {
     let employerName: String
     let employedSince: Date
+    let wage: Double?
+    let hoursRounding: WorkHoursRoundingOptions
+    let payPeriodFrequency: PayFrequency
+    
+    init(employerName: String, employedSince: Date, wage: Double?, hoursRounding: WorkHoursRoundingOptions, payPeriodFrequency: PayFrequency) {
+        self.employerName = employerName
+        self.employedSince = employedSince
+        self.hoursRounding = hoursRounding
+        self.payPeriodFrequency = payPeriodFrequency
+        self.wage = wage
+    }
+    
+    /**
+     - returns : Wage as a string value.
+     */
+    
+    func getWage() -> String {
+        return wage?.formatted(.number.precision(.fractionLength(2))) ?? "Varies"
+    }
     
     /**
      - returns : Employed Since formatted into Months & Years
@@ -20,20 +39,20 @@ struct EmployerDetails {
         formatter.allowedUnits = [.year, .month]
         formatter.unitsStyle = .full
         formatter.maximumUnitCount = 2
-        return formatter.string(from: self.employedSince, to: .now) ?? "Unavailable"
+        return formatter.string(from: self.employedSince, to: .now)?.capitalized ?? "Unavailable"
     }
 }
 
 @Model
 final class EmployerModel {
     
-    private var employerName: String
+    var employerName: String
     private var employedSince: Date
     
-    private var payPeriodFrequency: PayFrequency
     private var wage: Double?
     private var hourRounding: WorkHoursRoundingOptions
     
+    private var payPeriodFrequency: PayFrequency
     private var currentPayPeriodStart: Date?
     private var currentPayPeriodEnd: Date?
     
@@ -51,8 +70,12 @@ final class EmployerModel {
         self.PayPeriods = PayPeriods
     }
     
+    func getPayPeriods() -> [PayPeriod] {
+        return self.PayPeriods
+    }
+    
     func getDetails() -> EmployerDetails {
-        return EmployerDetails(employerName: self.employerName, employedSince: self.employedSince)
+        return EmployerDetails(employerName: self.employerName, employedSince: self.employedSince, wage: self.wage, hoursRounding: self.hourRounding, payPeriodFrequency: self.payPeriodFrequency)
     }
     
     func getCurrentPayPeriod() -> PayPeriodSnapshot? {
@@ -91,7 +114,7 @@ final class EmployerModel {
         self.currentPayPeriodEnd = future.payPeriodEnd
         
         // Create next pay period:
-        let newPayPeriod = PayPeriod(payPeriodStartDate: future.payPeriodStart, payPeriodEndDate: future.payPeriodEnd)
+        
         
         // Save
     }
