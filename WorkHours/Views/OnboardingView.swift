@@ -9,6 +9,8 @@ import SwiftUI
 
 struct OnboardingView: View {
     
+    @Environment(\.dismiss) private var dismiss
+    
     @Binding var onboardingComplete: Bool
     
     @State private var currentStep: OnboardingStep = .user
@@ -28,9 +30,14 @@ struct OnboardingView: View {
                         }
 
                     case .employer:
-                        EmployerCreationView {
+                        EmployerCreationView(onComplete: {
                             onboardingComplete = true
-                        }
+                            dismiss()
+                        },
+                        onCancel:  {
+                            onboardingComplete = true
+                            dismiss()
+                        })
                     }
                 }
             }

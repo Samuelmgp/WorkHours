@@ -73,8 +73,19 @@ final class WorkTicket {
         }
     }
     
-    convenience init(workingHours: WorkingHours, payArrangement: PayArrangement) {
-        self.init(workDate: workingHours.date, startTime: workingHours.date, endTime: .now, payArrangement: payArrangement)
+    convenience init(workingHours: WorkingHours) {
+        self.init(workDate: workingHours.date, startTime: workingHours.date, endTime: .now, payArrangement: .lumpSum(amount: 0))
+    }
+    
+    func updatePayArrangement(arrangement: PayArrangementOptions, pay: Double){
+        switch arrangement {
+        case .hourly :
+            self.payType = "hourly"
+            self.payAmount = pay
+        case .lumpSum :
+            self.payType = "lumpsum"
+            self.payAmount = pay
+        }
     }
     
     func update(workDate: Date, endTime: Date, roundingOption: WorkHoursRoundingOptions) {

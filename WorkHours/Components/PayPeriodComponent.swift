@@ -14,7 +14,7 @@ struct PayPeriodComponent: View {
     var body: some View {
         HStack (alignment: .center){
             VStack (alignment: .leading){
-                Text("Pay Period:")
+                Label(payPeriod.employer?.employerName ?? "None", systemImage: "suitcase")
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(.primary.opacity(0.75))
                 Text(("\(payPeriod.payPeriodStartDate.formatted(date: .abbreviated, time: .omitted)) - \(payPeriod.payPeriodEndDate.formatted(date: .abbreviated, time: .omitted))"))

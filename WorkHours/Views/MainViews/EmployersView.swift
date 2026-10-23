@@ -18,12 +18,14 @@ struct EmployersView: View {
     var body: some View {
         Group {
             if employers.count == 1 {
-                
+                EmployerView(employer: employers[0])
             } else if employers.count > 1 {
                 List {
                     ForEach(employers, id: \.self) { employer in
-                        // TODO: NavigationLink to EmployerView
-                        EmployerCard(employerModel: employer)
+                        NavigationLink(destination: EmployerView(employer: employer), label: {
+                            EmployerCard(employerModel: employer)
+                        })
+                        .listRowSeparator(.hidden)
                     }
                 }
                 .listStyle(.plain)
@@ -45,7 +47,10 @@ struct EmployersView: View {
         }
         .sheet(isPresented: $displayAddEmployer, content: {
             NavigationView(content: {
-                EmployerCreationView()
+                EmployerCreationView(
+                    onComplete: { displayAddEmployer = false },
+                    onCancel: { displayAddEmployer = false }
+                )
             })
         })
     }

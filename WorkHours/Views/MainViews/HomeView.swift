@@ -10,9 +10,11 @@ import SwiftData
 
 struct HomeView: View {
     
-    @Environment(\.modelContext) var context
+    @Environment(\.modelContext) private var context
     @State var liveSession: WorkingHours? = nil
     @State var shiftStarted: Bool = false
+    
+    @State private var isShowingClockOutOverview = false
     
     var clockInColorStyle: Color {
         switch shiftStarted {
@@ -36,6 +38,7 @@ struct HomeView: View {
                 Text("Live Session: \(Duration.seconds(t.date.timeIntervalSince(liveSession!.date)).formatted(.time(pattern: .hourMinuteSecond)))")
             }
             : nil
+            
             HStack(spacing: 50) {
                 Button {
                     clockIn()
@@ -69,20 +72,20 @@ struct HomeView: View {
         }
         .navigationTitle("Dashboard")
         .onAppear{
-            guard let liveSession: WorkingHours = restoreActiveSession() else {
+            guard let session: WorkingHours = restoreActiveSession() else {
                 return
             }
-            self.liveSession = liveSession
+            self.liveSession = session
             self.shiftStarted = true
         }
-    }
-    
-    func clockIn() {
-        shiftStarted = true
-        let workHours = WorkingHours(.now)
-        let data = try? JSONEncoder().encode(workHours)
-        UserDefaults.standard.set(data, forKey: "activeWorkSession")
-        liveSession = workHours
+        .fullScreenCover(isPresented: $isShowingClockOutOverview,
+        onDismiss: {
+            self.liveSession = nil
+            self.shiftStarted = false
+        },
+        content: {
+            ClockOutOverview(session: $liveSession, endTime: .now)
+        })
     }
     
     func restoreActiveSession() -> WorkingHours? {
@@ -93,14 +96,23 @@ struct HomeView: View {
         return try? JSONDecoder().decode(WorkingHours.self, from: data)
     }
     
+    func clockIn() {
+        shiftStarted = true
+        let workHours = WorkingHours(.now)
+        let data = try? JSONEncoder().encode(workHours)
+        UserDefaults.standard.set(data, forKey: "activeWorkSession")
+        liveSession = workHours
+    }
+    
     func clockOut() {
         shiftStarted = false
         defer { UserDefaults.standard.removeObject(forKey: "activeWorkSession")}
         
-        guard let check = restoreActiveSession() else { return }
-        
+        guard let session: WorkingHours = restoreActiveSession() else { return }
+        liveSession = session
         // Restructure saving methods
         
+        isShowingClockOutOverview = true
     }
 }
 

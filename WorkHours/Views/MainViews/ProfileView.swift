@@ -9,11 +9,11 @@ import SwiftUI
 
 struct ProfileView: View {
     
-    private var user: UserModel?
+    @Binding private var user: UserModel?
     @State private var userPerformedDeletedAccount: Bool = false
     
-    init(user: UserModel?) {
-        self.user = user
+    init(user: Binding<UserModel?>) {
+        self._user = user
     }
     
     var body: some View {
@@ -22,13 +22,13 @@ struct ProfileView: View {
         } else {
             UserInformation(user: user!, userPerformedDeleteAccount: $userPerformedDeletedAccount)
                 .fullScreenCover(isPresented: $userPerformedDeletedAccount){
-                    DeleteAccountOverview(isPresented: $userPerformedDeletedAccount, user: user)
+                    DeleteAccountOverview(isPresented: $userPerformedDeletedAccount, user: $user)
                 }
         }
     }
 }
 
 #Preview {
-    @Previewable var user: UserModel? = nil
-    ProfileView(user: user)
+    @Previewable @State var user: UserModel? = nil
+    ProfileView(user: $user)
 }

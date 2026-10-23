@@ -10,29 +10,43 @@ import SwiftData
 
 struct PayPeriodView: View {
     @Environment(\.modelContext) var context
-    @Query(sort: \PayPeriod.payPeriodStartDate, order: .reverse) var payPeriods: [PayPeriod] = []
+    @Query var currentPayPeriods: [PayPeriod] = []
+    @Query var pastPayPeriods: [PayPeriod] = []
     
     @State var contentUnavailable = false
     @State var showPayPeriodCreation = false
+    
+    init(){
+        let now = Date.now
+        
+        let currentPeriodsPredicate = #Predicate<PayPeriod>{ period in
+            period.payPeriodEndDate > now
+        }
+        
+        let pastPeriodsPredicate = #Predicate<PayPeriod>{ period in
+            period.payPeriodEndDate <= now
+        }
+        
+        self._currentPayPeriods = Query(filter: currentPeriodsPredicate, sort: \PayPeriod.payPeriodStartDate, order: .reverse)
+        self._pastPayPeriods = Query(filter: pastPeriodsPredicate, sort: \PayPeriod.payPeriodStartDate, order: .reverse)
+    }
     
     var body: some View {
         List {
             if (contentUnavailable == false){
                 Section ("Current Period"){
-                    if ((payPeriods.first) != nil){
-                        NavigationLink(destination: PayPeriodOverview(payPeriod: payPeriods.first!)){
-                            PayPeriodComponent(payPeriod: payPeriods.first!)
+                    ForEach(currentPayPeriods, id: \.self) { period in
+                        NavigationLink(destination: PayPeriodOverview(payPeriod: period)){
+                            PayPeriodComponent(payPeriod: period)
                         }
                     }
                 }
                 
-                if (payPeriods.count > 1){
+                if (!pastPayPeriods.isEmpty){
                     Section("Previous"){
-                        ForEach(payPeriods, id: \.self) { period in
-                            if (period != payPeriods.first) {
-                                NavigationLink(destination: PayPeriodOverview(payPeriod: period)){
-                                    PayPeriodComponent(payPeriod: period)
-                                }
+                        ForEach(pastPayPeriods, id: \.self) { period in
+                            NavigationLink(destination: PayPeriodOverview(payPeriod: period)){
+                                PayPeriodComponent(payPeriod: period)
                             }
                         }
                     }
@@ -45,10 +59,10 @@ struct PayPeriodView: View {
         }
         .sheet(isPresented: $showPayPeriodCreation){
             PayPeriodCreationSheet(isPresented: $showPayPeriodCreation)
-                .presentationDetents([.medium, .height(300)])
+                .presentationDetents([.medium, .height(350)])
         }
         .onAppear {
-            if (payPeriods.isEmpty){
+            if (currentPayPeriods.isEmpty){
                 contentUnavailable = true
             }
         }

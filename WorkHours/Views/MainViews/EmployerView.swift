@@ -49,8 +49,10 @@ struct EmployerView: View {
             Section("Pay Period Logs"){
                 if (employer.getPayPeriods().isEmpty){
                     ContentUnavailableView("No Pay Periods", systemImage: "list.clipboard", description: Text("You currently do not have any pay periods associated with this employer."))
+                        .scaledToFill()
                 } else {
                     PayPeriodList(employer: employer)
+                        .scaledToFill()
                 }
             }
             .listRowBackground(Color.clear)

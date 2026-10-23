@@ -6,23 +6,37 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct EmployerCreationView: View {
     
+    @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     
     @State private var employer: String = ""
     @State private var employedDate: Date = .now
     @State private var wage: Double = 0.0
+    @State private var hoursRounding: WorkHoursRoundingOptions = .none
     
     @State private var firstPayPeriodStart: Date = .now
     @State private var firstPayPeriodEnd: Date = .now
     @State private var payFrequency: PayFrequency = .none
     
+    @State private var isProcessing: Bool = false
+    
+    @State private var errorMessage = ""
+    
     var onComplete: () -> Void = {}
+    var onCancel: () -> Void = {}
     
     var body: some View {
         Form {
+            errorMessage.isEmpty ? nil :
+            Text(errorMessage)
+                .font(.footnote)
+                .foregroundStyle(.red)
+                .listRowBackground(Color.clear)
+            
             Section("Basic Information") {
                 InputField("Employer Name", "suitcase", text: $employer)
                     .inputFieldStyle(.plain)
@@ -42,12 +56,18 @@ struct EmployerCreationView: View {
             }
             
             Section("Wage") {
+                Picker("Hours Rounding", selection: $hoursRounding){
+                    ForEach(WorkHoursRoundingOptions.allCases, id: \.self){ o in
+                        Text(o.getTitle())
+                    }
+                }
                 WageInput(value: $wage)
                 Text("Note: If the employer does not offer a set wage, rather provides lumpsum payments leave this at $0.00")
                     .font(.footnote)
                     .fontWeight(.semibold)
                     .foregroundStyle(.primary.opacity(0.75))
             }
+            
         }
         .listRowBackground(EmptyView())
         .navigationTitle("New Employer")
@@ -55,17 +75,43 @@ struct EmployerCreationView: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction){
                 Button("Cancel"){
-                    dismiss()
+                    onCancel()
                 }
                 .tint(.red)
             }
             
             ToolbarItem(placement: .primaryAction){
                 Button("Save"){
-                    
+                    isProcessing = true
+                    createEmployer()
                 }
+                .disabled(isProcessing)
                 .tint(.accentColor)
             }
+        }
+    }
+    
+    func createEmployer(){
+        // Input validation
+        if (employer.isEmpty){
+            errorMessage = "Employer name cannot be empty."
+            isProcessing = false
+            return
+        }
+        
+        // Otherwise:
+        let wage = { wage <= 0 ? nil : wage}
+        
+        let model = EmployerModel(employerName: employer, employedSince: employedDate, payPeriodFrequency: payFrequency, wage: wage(), hourRounding: hoursRounding, currentPayPeriodStart: firstPayPeriodStart, currentPayPeriodEnd: firstPayPeriodEnd)
+        
+        context.insert(model)
+        
+        do {
+            try context.save()
+            onComplete()
+        } catch {
+            errorMessage = "An error occurred could not create employer at this time."
+            isProcessing = false
         }
     }
 }

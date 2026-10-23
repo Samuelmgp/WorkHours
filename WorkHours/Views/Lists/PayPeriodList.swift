@@ -21,7 +21,7 @@ struct PayPeriodList: View {
             period.employer?.persistentModelID == employerID
         }
         
-        self._payPeriods = Query(filter: predicate, sort: \PayPeriod.payPeriodStartDate)
+        self._payPeriods = Query(filter: predicate, sort: \PayPeriod.payPeriodStartDate, order: .reverse)
     }
     
     var body: some View {
@@ -37,7 +37,9 @@ struct PayPeriodList: View {
                     Section("Previous") {
                         ForEach(payPeriods, id: \.self){ period in
                             if (period != payPeriods[0]){
-                                PayPeriodComponent(payPeriod: period)
+                                NavigationLink(destination: PayPeriodOverview(payPeriod: period), label: {
+                                    PayPeriodComponent(payPeriod: period)
+                                })
                             }
                         }
                     }
@@ -64,8 +66,14 @@ struct PayPeriodList: View {
         currentPayPeriodStart: .now,
         currentPayPeriodEnd: .now
     )
-    /*
+    
     let samplePeriod = PayPeriod(
+        employer: sampleEmployer,
+        payPeriodStartDate: .now,
+        payPeriodEndDate: .now
+    )
+    
+    let samplePeriod2 = PayPeriod(
         employer: sampleEmployer,
         payPeriodStartDate: .now,
         payPeriodEndDate: .now
@@ -73,8 +81,9 @@ struct PayPeriodList: View {
 
     context.insert(sampleEmployer)
     context.insert(samplePeriod)
+    context.insert(samplePeriod2)
     try! context.save()
-    */
+    
     
     return NavigationView {
         PayPeriodList(employer: sampleEmployer)

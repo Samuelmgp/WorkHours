@@ -10,20 +10,15 @@ import SwiftData
 
 struct UserCreationView: View {
     
-    @Environment(\.modelContext) private var context
     var onCreated: () -> Void = {}
     
     @State var firstName: String = ""
     @State var lastName: String = ""
-    
-    @State var payPeriodStartDate: Date = .now
-    @State var payPeriodEndDate: Date = .now
-    @State var payPeriodFrequency: PayFrequency = .none
-    @State var hoursRounding: WorkHoursRoundingOptions = .none
-    @State var wageFieldValue: Double = 0.0
     @State var travelTimeTracking: Bool = false
 
     @State private var isProcessing: Bool = false
+    
+    @State private var errorMessage: String = ""
     
     var body: some View {
         Form {
@@ -37,6 +32,12 @@ struct UserCreationView: View {
             Section ("Settings"){
                 Toggle("Enable Travel Time", systemImage: "clock", isOn: $travelTimeTracking)
             }
+            
+            !errorMessage.isEmpty ?
+            Text(errorMessage)
+                .font(.footnote)
+                .tint(.red)
+            : nil
             
             Button {
                 isProcessing = true
@@ -56,8 +57,22 @@ struct UserCreationView: View {
     }
     
     func saveUser(){
-        // TODO: New User Creation Logic
-        onCreated()
+        // Validate Inputs:
+        if (firstName.isEmpty && lastName.isEmpty){
+            isProcessing = false
+            errorMessage = "First Name & Last Name cannot be empty."
+            return
+        }
+        
+        // Otherwise save:
+        let user = UserManager.shared.createUser(firstName: firstName, lastName: lastName, trackTravelTime: travelTimeTracking)
+        
+        if (user == nil){
+            errorMessage = "An error occurred creating user. Task cannot be completed at this time."
+            isProcessing = false
+        } else {
+            onCreated()
+        }
     }
 }
 

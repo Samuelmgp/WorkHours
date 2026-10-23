@@ -10,10 +10,11 @@ import SwiftUI
 struct WageInput: View {
     
     @Binding var value: Double
+    @State var placeholder: String = "Pay / Hour"
     
     var body: some View {
         HStack {
-            Text("Pay / Hour")
+            Text(placeholder)
             TextField("Wage", value: $value, format: .currency(code: "cad"))
                 .multilineTextAlignment(.trailing)
                 .keyboardType(.decimalPad)

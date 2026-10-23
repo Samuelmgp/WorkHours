@@ -9,15 +9,15 @@ import SwiftUI
 
 struct ContentView: View {
     
-    private var user: UserModel? = UserManager.shared.loadUser()
+    @State private var user: UserModel? = UserManager.shared.loadUser()
     @State private var onBoardingComplete = false
     
     var body: some View {
         Group {
-            if (user == nil){
+            if (user == nil && onBoardingComplete == false){
                 OnboardingView(onboardingComplete: $onBoardingComplete)
             } else {
-                MainTabView(user: user)
+                MainTabView(user: $user)
             }
         }
     }

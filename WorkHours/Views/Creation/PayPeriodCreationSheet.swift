@@ -13,15 +13,16 @@ struct PayPeriodCreationSheet: View {
     @Binding var isPresented: Bool
     
     @Environment(\.modelContext) var context
+    @State var employer: EmployerModel? = nil
     @State var startDate: Date = .now
     @State var endDate: Date = .now
-    @State var wage: Double = 0.0
     
     @State var isProcessing: Bool = false
     
     var body: some View {
         Form {
-            Section("Pay Period Details"){
+            Section("New Pay Period"){
+                EmployerPicker(selected: $employer)
                 DatePicker("Pay Period Start", selection: $startDate, displayedComponents: .date)
                 DatePicker("Pay Period End", selection: $endDate, displayedComponents: .date)
                 Text("Note: Pay Period Start & End Date cannot be modified after being created.")
@@ -29,7 +30,7 @@ struct PayPeriodCreationSheet: View {
                     .listRowBackground(RoundedRectangle(cornerRadius: 12).foregroundStyle(.clear))
                     .foregroundStyle(.red)
                     .listRowSeparator(.hidden)
-                WageInput(value: $wage)
+
                 Button {
                     isProcessing = true
                     create()
@@ -39,27 +40,22 @@ struct PayPeriodCreationSheet: View {
                 .disabled(isProcessing)
             }
         }
-        .onAppear {
-            // TODO: Set predefined conditions
-        }
-        .padding(.vertical, 10)
     }
     
     func create(){
+        // Validate
         if (startDate > endDate){
             // Error prevention
             let t = startDate
             startDate = endDate
             endDate = t
         }
-        let newPayPeriod = PayPeriod(payPeriodStartDate: startDate, payPeriodEndDate: endDate)
         
-        context.insert(newPayPeriod)
-        do {
-            try context.save()
-        } catch {
-            print("Error Creating Pay Period: \(error)")
-        }
+        if (employer == nil){ isPresented = false; return}
+        
+        // Save
+        employer?.createPayPeriod(payPeriodStart: startDate, payPeriodEnd: endDate)
+        
         isPresented = false
     }
 }

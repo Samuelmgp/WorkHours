@@ -18,6 +18,7 @@ struct PayPeriodOverview: View {
     
     @State var isEditing: Bool = false
     @State var isProcessing: Bool = false
+
     
     var body: some View {
         List {
@@ -47,7 +48,7 @@ struct PayPeriodOverview: View {
                 HStack(alignment: .center){
                     Text("Accummulated Hours:")
                     Spacer()
-                    Text("")
+                    Text(payPeriod.calculateHours().formatted(.number.precision(.fractionLength(2))))
                 }
                 HStack(alignment: .center){
                     Text("Estimated Pay:")
@@ -57,14 +58,14 @@ struct PayPeriodOverview: View {
                 HStack(alignment: .center) {
                     Text("Pay Rate:")
                     Spacer()
-                    Text("")
+                    Text(payPeriod.employer?.getDetails().getWage() ?? "Unavailable")
                 }
             }
             .listRowBackground(Rectangle().foregroundStyle(.clear))
             
             if (!payPeriod.workTickets.isEmpty){
                 Section("Logged Hours") {
-                    ForEach(payPeriod.workTickets.sorted(by: {$0.getWorkDate() > $1.getWorkDate()}), id: \.self){ ticket in
+                    ForEach(payPeriod.workTickets.sorted(by: {$0.getWorkDate() > $1.getWorkDate()}), id: \.persistentModelID){ ticket in
                         NavigationLink(destination: WorkedHoursOverview(ticket: ticket)){
                             WorkSummaryComponent(ticket: ticket)
                         }
@@ -88,8 +89,8 @@ struct PayPeriodOverview: View {
             
         }
         .sheet(isPresented: $isPresentedAddHours){
-            WorkedHoursCreationSheet(isPresented: $isPresentedAddHours)
-                .presentationDetents([.medium, .height(360)])
+            WorkedHoursCreationSheet(payPeriod: payPeriod, isPresented: $isPresentedAddHours)
+                .presentationDetents([.large, .height(620)])
         }
         .sheet(isPresented: $isEditing){
             PayPeriodModifier(payPeriod: payPeriod)

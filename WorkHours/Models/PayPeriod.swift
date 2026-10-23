@@ -133,10 +133,6 @@ final class PayPeriod {
         self.workTickets = workTickets
     }
     
-    func getWageInformation() -> Double? {
-        return nil
-    }
-    
     func calculateHours() -> Double {
         var hours: Double = 0
         for ticket in workTickets {
@@ -151,5 +147,10 @@ final class PayPeriod {
             estimate += ticket.getGrossPay()
         }
         return estimate
+    }
+    
+    func addWorkTicket(ticket: WorkTicket){
+        ticket.payPeriod = self
+        self.workTickets.append(ticket)
     }
 }
