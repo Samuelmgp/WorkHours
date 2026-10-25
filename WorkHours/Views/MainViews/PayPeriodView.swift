@@ -36,7 +36,7 @@ struct PayPeriodView: View {
             if (contentUnavailable == false){
                 if (!currentPayPeriods.isEmpty){
                     Section ("Current Period"){
-                        ForEach(currentPayPeriods, id: \.self) { period in
+                        ForEach(currentPayPeriods, id: \.persistentModelID) { period in
                             NavigationLink(destination: PayPeriodOverview(payPeriod: period)){
                                 PayPeriodComponent(payPeriod: period)
                             }
@@ -48,7 +48,7 @@ struct PayPeriodView: View {
                 
                 if (!pastPayPeriods.isEmpty){
                     Section("Previous"){
-                        ForEach(pastPayPeriods, id: \.self) { period in
+                        ForEach(pastPayPeriods, id: \.persistentModelID) { period in
                             NavigationLink(destination: PayPeriodOverview(payPeriod: period)){
                                 PayPeriodComponent(payPeriod: period)
                             }

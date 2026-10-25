@@ -48,7 +48,7 @@ struct EmployerCreationView: View {
             Section("Pay Period Details"){
                 DatePicker("Start of Pay Period", selection: $firstPayPeriodStart, displayedComponents: .date)
                 DatePicker("End of Pay Period", selection: $firstPayPeriodEnd, displayedComponents: .date)
-                Picker("Pay Frequency", systemImage: "arrow", selection: $payFrequency){
+                Picker("Pay Frequency", systemImage: "plus.arrow.trianglehead.clockwise", selection: $payFrequency){
                     ForEach(PayFrequency.allCases, id: \.self){ o in
                         Text(o.rawValue)
                     }
