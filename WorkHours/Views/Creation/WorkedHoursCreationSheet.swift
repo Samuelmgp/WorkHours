@@ -143,6 +143,6 @@ struct WorkedHoursCreationSheet: View {
 
 #Preview {
     @Previewable @State var a: Bool = true
-    var period = PayPeriod(payPeriodStartDate: .now, payPeriodEndDate: .now)
+    let period = PayPeriod(payPeriodStartDate: .now, payPeriodEndDate: .now)
     WorkedHoursCreationSheet(payPeriod: period, isPresented: $a)
 }

@@ -11,7 +11,8 @@ import SwiftData
 struct HomeView: View {
     
     @Environment(\.modelContext) private var context
-    @State var liveSession: WorkingHours? = nil
+    
+    @State var liveSession: TempWorkTicket? = nil
     @State var shiftStarted: Bool = false
     
     @State private var isShowingClockOutOverview = false
@@ -33,11 +34,11 @@ struct HomeView: View {
     var body: some View {
         VStack(spacing: 10){
             CalendarComponent()
-            liveSession != nil ?
+            
+            liveSession == nil && shiftStarted == false ? nil :
             TimelineView(.periodic(from: .now, by: 1)){ t in
                 Text("Live Session: \(Duration.seconds(t.date.timeIntervalSince(liveSession!.date)).formatted(.time(pattern: .hourMinuteSecond)))")
             }
-            : nil
             
             HStack(spacing: 50) {
                 Button {
@@ -72,7 +73,12 @@ struct HomeView: View {
         }
         .navigationTitle("Dashboard")
         .onAppear{
-            guard let session: WorkingHours = restoreActiveSession() else {
+            if let unsavedSession: TempWorkTicket = restoreUnsavedSession() {
+                self.liveSession = unsavedSession
+                self.isShowingClockOutOverview = true
+            }
+            
+            guard let session: TempWorkTicket = restoreActiveSession() else {
                 return
             }
             self.liveSession = session
@@ -80,25 +86,34 @@ struct HomeView: View {
         }
         .fullScreenCover(isPresented: $isShowingClockOutOverview,
         onDismiss: {
+            defer { UserDefaults.standard.removeObject(forKey: "unsavedSession")}
             self.liveSession = nil
             self.shiftStarted = false
         },
         content: {
-            ClockOutOverview(session: $liveSession, endTime: .now)
+            ClockOutOverview(session: $liveSession)
         })
     }
     
-    func restoreActiveSession() -> WorkingHours? {
+    func restoreUnsavedSession() -> TempWorkTicket? {
+        guard let data = UserDefaults.standard.data(forKey: "unsavedSession") else {
+            return nil
+        }
+        
+        return try? JSONDecoder().decode(TempWorkTicket.self, from: data)
+    }
+    
+    func restoreActiveSession() -> TempWorkTicket? {
         guard let data = UserDefaults.standard.data(forKey: "activeWorkSession") else {
             return nil
         }
         
-        return try? JSONDecoder().decode(WorkingHours.self, from: data)
+        return try? JSONDecoder().decode(TempWorkTicket.self, from: data)
     }
     
     func clockIn() {
         shiftStarted = true
-        let workHours = WorkingHours(.now)
+        let workHours = TempWorkTicket(.now)
         let data = try? JSONEncoder().encode(workHours)
         UserDefaults.standard.set(data, forKey: "activeWorkSession")
         liveSession = workHours
@@ -108,8 +123,13 @@ struct HomeView: View {
         shiftStarted = false
         defer { UserDefaults.standard.removeObject(forKey: "activeWorkSession")}
         
-        guard let session: WorkingHours = restoreActiveSession() else { return }
+        guard let session: TempWorkTicket = restoreActiveSession() else { return }
         liveSession = session
+        
+        session.endTime = .now
+        
+        let data = try? JSONEncoder().encode(session)
+        UserDefaults.standard.set(data, forKey: "unsavedSession")
         // Restructure saving methods
         
         isShowingClockOutOverview = true

@@ -24,16 +24,30 @@ struct WorkedHoursOverview: View {
     
     var body: some View {
         List {
-            Section("\(ticket.getWorkDate().formatted(date: .complete, time: .shortened))"){
-                Text("Hours Worked: \(ticket.getHoursWorked().formatted(.number.precision(.fractionLength(2))))")
-                    .listRowSeparator(.hidden)
-                Text("Rounding Option: \(ticket.getRoundingOption().getTitle())")
+            Group {
+                HSText(lhText: ticket.getWorkDate().formatted(date: .complete, time: .omitted), systemImage: "calendar")
+                    .font(.system(size: 18, weight: .semibold))
                 
-                Text("Start Time: \(ticket.getStartTime().formatted(date: .omitted, time: .shortened))")
-                Text("End Time: \(ticket.getEndTime().formatted(date: .omitted, time: .shortened))")
+                if let payPeriod: PayPeriod = ticket.payPeriod {
+                    if let employer: EmployerModel = payPeriod.employer {
+                        HSText(lhText: "Employer", rhText: employer.employerName, systemImage: "suitcase")
+                            .font(.system(size: 18, weight: .semibold))
+                    }
+                    HSText(lhText: payPeriod.payPeriodStartDate.formatted(date: .abbreviated, time: .standard), mText: "-", rhText: payPeriod.payPeriodEndDate.formatted(date: .abbreviated, time: .standard), systemImage: "dollarsign.gauge.chart.lefthalf.righthalf")
+                        .font(.footnote)
+                }
             }
-            .listRowBackground(Rectangle().foregroundStyle(.clear))
-            .foregroundStyle(.primary.opacity(0.85))
+            .listRowBackground(Color.clear)
+            
+            Group {
+                HSText(lhText: "Start Time", rhText: ticket.getStartTime().formatted(date: .omitted, time: .standard), systemImage: "clock")
+                    .listRowSeparator(.visible, edges: .top)
+                HSText(lhText: "End Time", rhText: ticket.getEndTime().formatted(date: .omitted, time: .standard), systemImage: "clock")
+                    .listRowSeparator(.visible, edges: .bottom)
+                HSText(lhText: "Hours", rhText: ticket.getHoursWorked().formatted(.number.precision(.fractionLength(2))), systemImage: "timelapse")
+            }
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
             
             if (isEditing) {
                 Section("Modify"){
@@ -94,7 +108,7 @@ struct WorkedHoursOverview: View {
                 .disabled(isProcessing)
             }
         }
-        .navigationTitle("Work Ticket Overview")
+        .navigationTitle("Work Summary")
     }
 }
 

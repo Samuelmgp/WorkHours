@@ -34,12 +34,16 @@ struct PayPeriodView: View {
     var body: some View {
         List {
             if (contentUnavailable == false){
-                Section ("Current Period"){
-                    ForEach(currentPayPeriods, id: \.self) { period in
-                        NavigationLink(destination: PayPeriodOverview(payPeriod: period)){
-                            PayPeriodComponent(payPeriod: period)
+                if (!currentPayPeriods.isEmpty){
+                    Section ("Current Period"){
+                        ForEach(currentPayPeriods, id: \.self) { period in
+                            NavigationLink(destination: PayPeriodOverview(payPeriod: period)){
+                                PayPeriodComponent(payPeriod: period)
+                            }
                         }
                     }
+                } else {
+                    ContentUnavailableView("No Current Pay Periods", systemImage: "dollarsign.gauge.chart.lefthalf.righthalf", description: Text("Add a current pay period for any Employer for it to be displayed here."))
                 }
                 
                 if (!pastPayPeriods.isEmpty){
@@ -50,6 +54,8 @@ struct PayPeriodView: View {
                             }
                         }
                     }
+                } else {
+                    ContentUnavailableView("No Past Pay Periods", systemImage: "dollarsign.gauge.chart.lefthalf.righthalf", description: Text("Add a past pay period for any Employer for it to be displayed here."))
                 }
             }
         }
@@ -62,7 +68,7 @@ struct PayPeriodView: View {
                 .presentationDetents([.medium, .height(350)])
         }
         .onAppear {
-            if (currentPayPeriods.isEmpty){
+            if (currentPayPeriods.isEmpty && pastPayPeriods.isEmpty){
                 contentUnavailable = true
             }
         }

@@ -56,13 +56,19 @@ final class WorkTicket {
     private var hoursWorked: TimeInterval
     private var roundingOption: WorkHoursRoundingOptions
     
-    init(workDate: Date, startTime: Date, endTime: Date = .now, payArrangement: PayArrangement, travelTimes: [TravelTime] = [], roundingOption: WorkHoursRoundingOptions = .none) {
+    init(workDate: Date, startTime: Date,
+         endTime: Date = .now,
+         payArrangement: PayArrangement,
+         roundingOption: WorkHoursRoundingOptions = .none,
+         travelTimes: [TravelTime] = [])
+    {
         self.workDate = workDate
         self.startTime = startTime
         self.endTime = endTime
         self.hoursWorked = endTime.timeIntervalSince(startTime)
         self.roundingOption = roundingOption
         self.travelTimes = travelTimes
+        
         switch(payArrangement){
         case .hourly(let rate):
             self.payType = "hourly"
@@ -73,8 +79,12 @@ final class WorkTicket {
         }
     }
     
-    convenience init(workingHours: WorkingHours) {
-        self.init(workDate: workingHours.date, startTime: workingHours.date, endTime: .now, payArrangement: .lumpSum(amount: 0))
+    convenience init(workingHours: TempWorkTicket, payArrangement: PayArrangement, roundingOption: WorkHoursRoundingOptions) {
+        if let endTime: Date = workingHours.endTime {
+            self.init(workDate: workingHours.date, startTime: workingHours.date, endTime: endTime, payArrangement: payArrangement, roundingOption: roundingOption)
+        } else {
+            self.init(workDate: workingHours.date, startTime: workingHours.date, payArrangement: payArrangement, roundingOption: roundingOption)
+        }
     }
     
     func updatePayArrangement(arrangement: PayArrangementOptions, pay: Double){

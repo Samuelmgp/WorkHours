@@ -10,17 +10,15 @@ import SwiftUI
 struct HSText: View {
     
     @State var lhText: String
+    @State var mText: String
     @State var rhText: String
     @State var systemImage: String
     
-    init(lhText: String, rhText: String, systemImage: String) {
+    init(lhText: String, mText: String = "", rhText: String = "", systemImage: String = "") {
         self.lhText = lhText
+        self.mText = mText
         self.rhText = rhText
         self.systemImage = systemImage
-    }
-    
-    init(lhText:String, rhText: String){
-        self.init(lhText: lhText, rhText: rhText, systemImage: "")
     }
     
     init(){
@@ -32,6 +30,10 @@ struct HSText: View {
             systemImage.isEmpty ? nil : Image(systemName: systemImage)
             Text(lhText)
             Spacer()
+            if (!mText.isEmpty){
+                Text(mText)
+                Spacer()
+            }
             Text(rhText)
         }
     }

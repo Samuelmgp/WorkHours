@@ -11,8 +11,7 @@ struct ClockOutOverview: View {
     
     @Environment(\.dismiss) private var dismiss
     
-    @Binding var session: WorkingHours?
-    var endTime: Date
+    @Binding var session: TempWorkTicket?
     
     @State private var employer: EmployerModel?
     @State private var roundingOption: WorkHoursRoundingOptions = .none
@@ -35,9 +34,10 @@ struct ClockOutOverview: View {
                     Group {
                         HSText(lhText: "Start Time", rhText: session?.date.formatted(date: .omitted, time: .standard) ?? "Unavailable", systemImage: "clock")
                             .listRowSeparator(.visible, edges: .top)
-                        HSText(lhText: "End Time", rhText: endTime.formatted(date: .omitted, time: .standard), systemImage: "clock")
+                        HSText(lhText: "End Time", rhText: session?.getEndTimeStr() ?? "Unavailable", systemImage: "clock")
                             .listRowSeparator(.hidden, edges: .top)
                             .listRowSeparator(.visible, edges: .bottom)
+                        HSText(lhText: "Hours", rhText: session?.getHoursWorkedStr() ?? "Unavailable", systemImage: "timelapse")
                     }
                 }
                 .listRowBackground(Color.clear)
@@ -49,7 +49,9 @@ struct ClockOutOverview: View {
                                 Text(o.getTitle())
                             }
                         }
-                        HSText(lhText: "Wage", rhText: pay.formatted(.currency(code: "cad")), systemImage: "dollarsign")
+                        
+                        WageInput(value: $pay, placeholder: payArrangement == .lumpSum ? "Payout" : "Wage / Hour")
+                        
                         HSText(lhText: "Rounding", rhText: roundingOption.getTitle())
                     } else if (employer != nil || payArrangement == .lumpSum) {
                         Picker("Pay Arrangement", selection: $payArrangement){
@@ -87,7 +89,7 @@ struct ClockOutOverview: View {
     private func save(){
     
         // Validate
-        guard let ticket = session?.date else {
+        guard let ticket: TempWorkTicket = session else {
             isProcessing = false;
             errorMessage = "FATAL ERROR: Session is no longer available. Please manually enter hours under desired employer pay period."
             return
@@ -106,14 +108,18 @@ struct ClockOutOverview: View {
         }
         
         var canSave = false
-        if (currentPeriod.contains(ticket)){
+        if (currentPeriod.contains(ticket.date)){
             // Toggle save option
             canSave = true
         } else {
             if let nextPayPeriod = currentPeriod.getNextPayPeriod(payPeriodFrequency: desiredEmployer.getDetails().payPeriodFrequency) {
                 
-                canSave = nextPayPeriod.contains(ticket)
+                canSave = nextPayPeriod.contains(ticket.date)
                 
+                // MARK: Update Pay Period so Ticket can be saved
+                if canSave {
+                    desiredEmployer.updatePayPeriod()
+                }
             }
         }
         
@@ -128,9 +134,9 @@ struct ClockOutOverview: View {
             let finalTicket = {
                 switch payArrangement {
                 case .hourly :
-                    return WorkTicket(workDate: ticket, startTime: ticket, payArrangement: .hourly(rate: pay), roundingOption: roundingOption)
+                    return WorkTicket(workingHours: ticket, payArrangement: .hourly(rate: pay), roundingOption: roundingOption)
                 case .lumpSum :
-                    return WorkTicket(workDate: ticket, startTime: ticket, payArrangement: .lumpSum(amount: pay), roundingOption: roundingOption)
+                    return WorkTicket(workingHours: ticket, payArrangement: .lumpSum(amount: pay), roundingOption: roundingOption)
                 }
             }()
             
@@ -162,9 +168,9 @@ struct ClockOutOverview: View {
 
 #Preview {
     
-    @Previewable @State var w: WorkingHours? = WorkingHours(.now)
+    @Previewable @State var w: TempWorkTicket? = TempWorkTicket(.now)
     
     NavigationView {
-        ClockOutOverview(session: $w, endTime: .now)
+        ClockOutOverview(session: $w)
     }
 }
