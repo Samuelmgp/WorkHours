@@ -76,11 +76,27 @@ final class EmployerModel {
     }
     
     func getPayPeriods() -> [PayPeriod] {
-        return self.PayPeriods
+        if (self.PayPeriods.isEmpty){ return [] }
+        return self.PayPeriods.sorted(by: {$0.payPeriodStartDate < $1.payPeriodStartDate})
     }
     
     func getCurrentPayPeriodModel() -> PayPeriod? {
-        return self.PayPeriods.last
+        if (self.PayPeriods.isEmpty){ return nil }
+        let sortedPayPeriods = self.getPayPeriods()
+        
+        guard let period = sortedPayPeriods.last else { return nil }
+        if period.payPeriodStartDate == self.currentPayPeriodStart {
+            return period
+        } else {
+            // PayPeriod dates are outdated.
+            guard let start = currentPayPeriodStart else { return nil }
+            if start < period.payPeriodStartDate {
+                return updatePayPeriod()
+            } else if start == period.payPeriodEndDate {
+                return createPayPeriod()
+            }
+        }
+        return nil
     }
     
     func getDetails() -> EmployerDetails {
@@ -117,13 +133,14 @@ final class EmployerModel {
         self.wage = wage
     }
     
-    func updatePayPeriod(){
-        guard let future = getNextPayPeriod() else { return }
+    @discardableResult
+    func updatePayPeriod() -> PayPeriod? {
+        guard let future = getNextPayPeriod() else { return nil }
         self.currentPayPeriodStart = future.payPeriodStart
         self.currentPayPeriodEnd = future.payPeriodEnd
         
         // Create the next pay period
-        createPayPeriod()
+        return createPayPeriod()
     }
     
     /**
@@ -131,21 +148,27 @@ final class EmployerModel {
      date times. This will set the start to the start of the day (inclusive) and end to the start of the next day after pay period end (exclusive).
      - parameters: `payPeriodStart` is a date that is not standardized and can be nil. `payPeriodEnd` is also not standardized.
      */
-    func createPayPeriod(payPeriodStart: Date?, payPeriodEnd: Date?){
-        guard let startDate: Date = payPeriodStart, let endDate: Date = payPeriodEnd else { return }
-        guard let snapshot = PayPeriodSnapshot(payPeriodStart: startDate, payPeriodEnd: endDate) else { return }
+    @discardableResult
+    func createPayPeriod(payPeriodStart: Date?, payPeriodEnd: Date?) -> PayPeriod? {
+        guard let startDate: Date = payPeriodStart, let endDate: Date = payPeriodEnd else { return nil }
+        guard let snapshot = PayPeriodSnapshot(payPeriodStart: startDate, payPeriodEnd: endDate) else { return nil }
         
         let newPayPeriod = PayPeriod(employer: self, payPeriodStartDate: snapshot.payPeriodStart, payPeriodEndDate: snapshot.payPeriodEnd)
         self.PayPeriods.append(newPayPeriod)
+        
+        return newPayPeriod
     }
     
     /**
      This method is to be used internally assuming standardized date times.
      */
-    private func createPayPeriod(){
-        guard let startDate: Date = self.currentPayPeriodStart, let endDate: Date = self.currentPayPeriodEnd else { return }
+    @discardableResult
+    private func createPayPeriod() -> PayPeriod? {
+        guard let startDate: Date = self.currentPayPeriodStart, let endDate: Date = self.currentPayPeriodEnd else { return nil }
         
         let newPayPeriod = PayPeriod(employer: self, payPeriodStartDate: startDate, payPeriodEndDate: endDate)
         self.PayPeriods.append(newPayPeriod)
+        
+        return newPayPeriod
     }
 }

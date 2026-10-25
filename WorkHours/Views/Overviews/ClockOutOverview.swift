@@ -101,26 +101,10 @@ struct ClockOutOverview: View {
         }
         
         // Obtain Pay Period Details:
-        guard let currentPeriod = desiredEmployer.getCurrentPayPeriod() else {
+        guard desiredEmployer.getCurrentPayPeriod() != nil else {
             isProcessing = false;
             errorMessage = "Error: This employer does not have a current pay period available. Please try again later."
             return
-        }
-        
-        var canSave = false
-        if (currentPeriod.contains(ticket.date)){
-            // Toggle save option
-            canSave = true
-        } else {
-            if let nextPayPeriod = currentPeriod.getNextPayPeriod(payPeriodFrequency: desiredEmployer.getDetails().payPeriodFrequency) {
-                
-                canSave = nextPayPeriod.contains(ticket.date)
-                
-                // MARK: Update Pay Period so Ticket can be saved
-                if canSave {
-                    desiredEmployer.updatePayPeriod()
-                }
-            }
         }
         
         guard let period = desiredEmployer.getCurrentPayPeriodModel() else {
@@ -129,25 +113,17 @@ struct ClockOutOverview: View {
             return
         }
         
-        if (canSave){
-            
-            let finalTicket = {
-                switch payArrangement {
-                case .hourly :
-                    return WorkTicket(workingHours: ticket, payArrangement: .hourly(rate: pay), roundingOption: roundingOption)
-                case .lumpSum :
-                    return WorkTicket(workingHours: ticket, payArrangement: .lumpSum(amount: pay), roundingOption: roundingOption)
-                }
-            }()
-            
-            period.addWorkTicket(ticket: finalTicket)
-            isProcessing = false
-            dismiss()
-        } else {
-            isProcessing = false;
-            errorMessage = "Error: This employer does not have a current pay period available. Please try again later."
-            return
-        }
+        let finalTicket: WorkTicket = { switch payArrangement {
+            case .hourly:
+            return WorkTicket(workDate: ticket.date, startTime: ticket.date, payArrangement: .hourly(rate: pay), roundingOption: roundingOption)
+            case .lumpSum:
+            return WorkTicket(workDate: ticket.date, startTime: ticket.date, payArrangement: .lumpSum(amount: pay), roundingOption: roundingOption)
+            }
+        }()
+        
+        period.addWorkTicket(ticket: finalTicket)
+        
+        dismiss()
         
     }
     
