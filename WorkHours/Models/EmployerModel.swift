@@ -8,44 +8,6 @@
 import Foundation
 import SwiftData
 
-struct EmployerDetails {
-    let employerName: String
-    let employedSince: Date
-    let wage: Double?
-    let hoursRounding: WorkHoursRoundingOptions
-    let payPeriodFrequency: PayFrequency
-    
-    init(employerName: String, employedSince: Date, wage: Double?, hoursRounding: WorkHoursRoundingOptions, payPeriodFrequency: PayFrequency) {
-        self.employerName = employerName
-        self.employedSince = employedSince
-        self.hoursRounding = hoursRounding
-        self.payPeriodFrequency = payPeriodFrequency
-        self.wage = wage
-    }
-    
-    /**
-     - returns : Wage as a string value.
-     */
-    
-    func getWage() -> String {
-        if let wage = wage?.formatted(.currency(code: "cad")){
-            return "\(wage) / Hour"
-        }
-        return "Varies"
-    }
-    
-    /**
-     - returns : Employed Since formatted into Months & Years
-     */
-    func getEmployedSinceFormatted() -> String {
-        let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.year, .month]
-        formatter.unitsStyle = .full
-        formatter.maximumUnitCount = 2
-        return formatter.string(from: self.employedSince, to: .now)?.capitalized ?? "Unavailable"
-    }
-}
-
 @Model
 final class EmployerModel {
     
@@ -68,11 +30,12 @@ final class EmployerModel {
         self.payPeriodFrequency = payPeriodFrequency
         self.wage = wage
         self.hourRounding = hourRounding
-        self.currentPayPeriodStart = currentPayPeriodStart
-        self.currentPayPeriodEnd = currentPayPeriodEnd
         self.PayPeriods = PayPeriods
+        // Set current pay period:
+        let currentPeriod = createPayPeriod(payPeriodStart: currentPayPeriodStart, payPeriodEnd: currentPayPeriodEnd)
         
-        createPayPeriod(payPeriodStart: self.currentPayPeriodStart, payPeriodEnd: self.currentPayPeriodEnd)
+        self.currentPayPeriodStart = currentPeriod?.payPeriodStartDate
+        self.currentPayPeriodEnd = currentPeriod?.payPeriodEndDate
     }
     
     func getPayPeriods() -> [PayPeriod] {
@@ -84,12 +47,13 @@ final class EmployerModel {
         if (self.PayPeriods.isEmpty){ return nil }
         let sortedPayPeriods = self.getPayPeriods()
         
+        guard let start = self.currentPayPeriodStart else { return nil }
         guard let period = sortedPayPeriods.last else { return nil }
-        if period.payPeriodStartDate == self.currentPayPeriodStart {
+        
+        if period.payPeriodStartDate == start {
             return period
         } else {
             // PayPeriod dates are outdated.
-            guard let start = currentPayPeriodStart else { return nil }
             if start < period.payPeriodStartDate {
                 return updatePayPeriod()
             } else if start == period.payPeriodEndDate {
@@ -151,9 +115,11 @@ final class EmployerModel {
     @discardableResult
     func createPayPeriod(payPeriodStart: Date?, payPeriodEnd: Date?) -> PayPeriod? {
         guard let startDate: Date = payPeriodStart, let endDate: Date = payPeriodEnd else { return nil }
-        guard let snapshot = PayPeriodSnapshot(payPeriodStart: startDate, payPeriodEnd: endDate) else { return nil }
+        guard let sanatized = PayPeriodSanitizer(payPeriodStart: startDate, payPeriodEnd: endDate)
+        else { return nil }
         
-        let newPayPeriod = PayPeriod(employer: self, payPeriodStartDate: snapshot.payPeriodStart, payPeriodEndDate: snapshot.payPeriodEnd)
+        let newPayPeriod = PayPeriod(employer: self, payPeriodStartDate: sanatized.payPeriodStart, payPeriodEndDate: sanatized.payPeriodEnd)
+        
         self.PayPeriods.append(newPayPeriod)
         
         return newPayPeriod
@@ -170,5 +136,106 @@ final class EmployerModel {
         self.PayPeriods.append(newPayPeriod)
         
         return newPayPeriod
+    }
+    
+    /**
+     This method will be responsible for adding WorkTickets to an employer.
+     - parameters: TempWorkTicket, PayArrangement
+     - returns: AddWorkTicketResult [succes: Bool, error: String]
+     */
+    func addWorkTicket(snapshot: TicketSnapshot) -> AddWorkTicketResult{
+        // First determine if there is a valid pay period
+        guard let period = getCurrentPayPeriod()
+        else { return AddWorkTicketResult(
+            success: false,
+            error: "There is no current pay periods for this employer.")
+        }
+        
+        // Determine if the period is eligable
+        let contains = period.contains(snapshot.ticket.date)
+        var possiblePeriod: PayPeriod? = nil
+        
+        if contains {
+            possiblePeriod = getCurrentPayPeriodModel()
+        } else {
+            return AddWorkTicketResult(
+                success: false,
+                error: """
+                The tickets date range is outside the scope for the current pay period.
+                Current Period: \(period.payPeriodStart.formatted(date: .abbreviated, time: .standard)) - \(period.payPeriodEnd.formatted(date: .abbreviated, time: .standard))
+                Ticket Date: \(snapshot.ticket.date.formatted(date: .abbreviated, time: .standard))
+                The work date must be between 
+                \(period.payPeriodStart.formatted(date: .abbreviated, time: .standard)) (inclusive) 
+                and 
+                \(period.payPeriodEnd.formatted(date: .abbreviated, time: .standard)) (exclusive).
+                """)
+        }
+        
+        guard let period = possiblePeriod else {
+            return AddWorkTicketResult(
+                success: false,
+                error: "An error occurred and the possible pay period is not available. Please try again later, or manually add your hours to this employer.")
+        }
+        
+        let finalTicket = {
+            switch snapshot.payArrangement {
+            case .hourly:
+                return WorkTicket(workingHours: snapshot.ticket, payArrangement: .hourly(rate: snapshot.amount), roundingOption: snapshot.roundingOption)
+            case .lumpSum:
+                return WorkTicket(workingHours: snapshot.ticket, payArrangement: .lumpSum(amount: snapshot.amount), roundingOption: snapshot.roundingOption)
+            }
+        }()
+        
+        period.addWorkTicket(ticket: finalTicket)
+        
+        return AddWorkTicketResult(success: true)
+    }
+}
+
+struct EmployerDetails {
+    let employerName: String
+    let employedSince: Date
+    let wage: Double?
+    let hoursRounding: WorkHoursRoundingOptions
+    let payPeriodFrequency: PayFrequency
+    
+    init(employerName: String, employedSince: Date, wage: Double?, hoursRounding: WorkHoursRoundingOptions, payPeriodFrequency: PayFrequency) {
+        self.employerName = employerName
+        self.employedSince = employedSince
+        self.hoursRounding = hoursRounding
+        self.payPeriodFrequency = payPeriodFrequency
+        self.wage = wage
+    }
+    
+    /**
+     - returns : Wage as a string value.
+     */
+    
+    func getWage() -> String {
+        if let wage = wage?.formatted(.currency(code: "cad")){
+            return "\(wage) / Hour"
+        }
+        return "Varies"
+    }
+    
+    /**
+     - returns : Employed Since formatted into Months & Years
+     */
+    func getEmployedSinceFormatted() -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.year, .month]
+        formatter.unitsStyle = .full
+        formatter.maximumUnitCount = 2
+        return formatter.string(from: self.employedSince, to: .now)?.capitalized ?? "Unavailable"
+    }
+}
+
+struct AddWorkTicketResult {
+    let success: Bool
+    let error: String
+    
+    init(success: Bool, error: String = "") {
+        self.success = success
+        self.error = error
     }
 }

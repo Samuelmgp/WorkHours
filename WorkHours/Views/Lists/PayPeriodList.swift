@@ -36,7 +36,7 @@ struct PayPeriodList: View {
                 if (payPeriods.count > 1){
                     Section("Previous") {
                         ForEach(payPeriods, id: \.self){ period in
-                            if (period != payPeriods[0]){
+                            if (period != payPeriods.first){
                                 NavigationLink(destination: PayPeriodOverview(payPeriod: period), label: {
                                     PayPeriodComponent(payPeriod: period)
                                 })

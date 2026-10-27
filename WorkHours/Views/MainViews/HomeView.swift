@@ -91,7 +91,9 @@ struct HomeView: View {
             self.shiftStarted = false
         },
         content: {
-            ClockOutOverview(session: $liveSession)
+            NavigationView {
+                ClockOutOverview(session: $liveSession)
+            }
         })
     }
     
