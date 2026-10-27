@@ -164,7 +164,10 @@ final class EmployerModel {
                 The tickets date range is outside the scope for the current pay period.
                 Current Period: \(period.payPeriodStart.formatted(date: .abbreviated, time: .standard)) - \(period.payPeriodEnd.formatted(date: .abbreviated, time: .standard))
                 Ticket Date: \(snapshot.ticket.date.formatted(date: .abbreviated, time: .standard))
-                The work date must not be between the start date (inclusive) and end date (exclusive).
+                The work date must be between 
+                \(period.payPeriodStart.formatted(date: .abbreviated, time: .standard)) (inclusive) 
+                and 
+                \(period.payPeriodEnd.formatted(date: .abbreviated, time: .standard)) (exclusive).
                 """)
         }
         
