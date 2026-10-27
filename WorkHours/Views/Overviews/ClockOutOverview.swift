@@ -7,6 +7,20 @@
 
 import SwiftUI
 
+struct TicketSnapshot {
+    let ticket: TempWorkTicket
+    let payArrangement: PayArrangementOptions
+    let amount: Double
+    let roundingOption: WorkHoursRoundingOptions
+    
+    init(ticket: TempWorkTicket, payArrangement: PayArrangementOptions, amount: Double, roundingOption: WorkHoursRoundingOptions) {
+        self.ticket = ticket
+        self.payArrangement = payArrangement
+        self.amount = amount
+        self.roundingOption = roundingOption
+    }
+}
+
 struct ClockOutOverview: View {
     
     @Environment(\.dismiss) private var dismiss
@@ -101,36 +115,23 @@ struct ClockOutOverview: View {
             errorMessage = "FATAL ERROR: Session is no longer available. Please manually enter hours under desired employer pay period."
             return
         }
+        
         guard let desiredEmployer: EmployerModel = employer else {
             isProcessing = false;
             errorMessage = "Error: Please select an employer prior to saving!"
             return
         }
         
-        // Obtain Pay Period Details:
-        guard desiredEmployer.getCurrentPayPeriod() != nil else {
-            isProcessing = false;
-            errorMessage = "Error: This employer does not have a current pay period available. Please try again later."
-            return
+        // Attempt save through employer
+        let snapshot: TicketSnapshot = TicketSnapshot(ticket: ticket, payArrangement: payArrangement, amount: pay, roundingOption: roundingOption)
+        
+        let result = desiredEmployer.addWorkTicket(snapshot: snapshot)
+        
+        if result.success {
+            dismiss()
+        } else {
+            errorMessage = result.error
         }
-        
-        guard let period = desiredEmployer.getCurrentPayPeriodModel() else {
-            isProcessing = false;
-            errorMessage = "Error: This employer does not have a current pay period available. Please try again later."
-            return
-        }
-        
-        let finalTicket: WorkTicket = { switch payArrangement {
-            case .hourly:
-            return WorkTicket(workDate: ticket.date, startTime: ticket.date, payArrangement: .hourly(rate: pay), roundingOption: roundingOption)
-            case .lumpSum:
-            return WorkTicket(workDate: ticket.date, startTime: ticket.date, payArrangement: .lumpSum(amount: pay), roundingOption: roundingOption)
-            }
-        }()
-        
-        period.addWorkTicket(ticket: finalTicket)
-        
-        dismiss()
         
     }
     
