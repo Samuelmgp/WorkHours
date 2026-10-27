@@ -84,6 +84,13 @@ struct ClockOutOverview: View {
                 .disabled(isProcessing)
             }
             .navigationTitle("Summary")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction){
+                    Button("Cancel"){
+                        dismiss()
+                    }
+                }
+            }
     }
     
     private func save(){

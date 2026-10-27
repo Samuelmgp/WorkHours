@@ -68,11 +68,11 @@ final class EmployerModel {
         self.payPeriodFrequency = payPeriodFrequency
         self.wage = wage
         self.hourRounding = hourRounding
-        self.currentPayPeriodStart = currentPayPeriodStart
-        self.currentPayPeriodEnd = currentPayPeriodEnd
         self.PayPeriods = PayPeriods
-        
-        createPayPeriod(payPeriodStart: self.currentPayPeriodStart, payPeriodEnd: self.currentPayPeriodEnd)
+        // Set current pay period:
+        let currentPeriod = createPayPeriod(payPeriodStart: self.currentPayPeriodStart, payPeriodEnd: self.currentPayPeriodEnd)
+        self.currentPayPeriodStart = currentPeriod?.payPeriodStartDate
+        self.currentPayPeriodEnd = currentPeriod?.payPeriodEndDate
     }
     
     func getPayPeriods() -> [PayPeriod] {
@@ -84,12 +84,13 @@ final class EmployerModel {
         if (self.PayPeriods.isEmpty){ return nil }
         let sortedPayPeriods = self.getPayPeriods()
         
+        guard let start = self.currentPayPeriodStart else { return nil }
         guard let period = sortedPayPeriods.last else { return nil }
-        if period.payPeriodStartDate == self.currentPayPeriodStart {
+        
+        if period.payPeriodStartDate == start {
             return period
         } else {
             // PayPeriod dates are outdated.
-            guard let start = currentPayPeriodStart else { return nil }
             if start < period.payPeriodStartDate {
                 return updatePayPeriod()
             } else if start == period.payPeriodEndDate {
