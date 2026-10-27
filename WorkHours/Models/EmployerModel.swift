@@ -71,6 +71,7 @@ final class EmployerModel {
         self.PayPeriods = PayPeriods
         // Set current pay period:
         let currentPeriod = createPayPeriod(payPeriodStart: self.currentPayPeriodStart, payPeriodEnd: self.currentPayPeriodEnd)
+        
         self.currentPayPeriodStart = currentPeriod?.payPeriodStartDate
         self.currentPayPeriodEnd = currentPeriod?.payPeriodEndDate
     }
