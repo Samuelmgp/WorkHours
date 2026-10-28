@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct PayPeriodComponent: View {
+struct PayPeriodCard: View {
     
     @Bindable var payPeriod: PayPeriod
     
@@ -27,5 +27,5 @@ struct PayPeriodComponent: View {
 
 #Preview {
     @Previewable @State var sample = PayPeriod(payPeriodStartDate: .now, payPeriodEndDate: .now)
-    PayPeriodComponent(payPeriod: sample)
+    PayPeriodCard(payPeriod: sample)
 }

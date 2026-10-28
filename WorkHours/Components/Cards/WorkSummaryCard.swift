@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct WorkSummaryComponent: View {
+struct WorkSummaryCard: View {
     
     @Bindable var ticket: WorkTicket
     var date: String
@@ -43,5 +43,5 @@ let payPeriod: PayPeriod = PayPeriod(payPeriodStartDate: .now, payPeriodEndDate:
     
     @Previewable var ticket: WorkTicket = WorkTicket(workDate: .now, startTime: .now, payArrangement: .hourly(rate: 20))
     
-    WorkSummaryComponent(ticket: ticket)
+    WorkSummaryCard(ticket: ticket)
 }

@@ -67,7 +67,7 @@ struct PayPeriodOverview: View {
                 Section("Logged Hours") {
                     ForEach(payPeriod.workTickets.sorted(by: {$0.getWorkDate() > $1.getWorkDate()}), id: \.persistentModelID){ ticket in
                         NavigationLink(destination: WorkedHoursOverview(ticket: ticket)){
-                            WorkSummaryComponent(ticket: ticket)
+                            WorkSummaryCard(ticket: ticket)
                         }
                     }
                     .onDelete { offsets in
