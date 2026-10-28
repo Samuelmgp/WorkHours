@@ -10,8 +10,9 @@ import UIKit
 
 extension Color {
     
-    init?(hex: String){
-        var hex = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+    init?(hex: String?){
+        guard var hex: String = hex else { return nil }
+        hex = hex.trimmingCharacters(in: .whitespacesAndNewlines)
         hex = hex.replacingOccurrences(of: "#", with: "")
         guard hex.count == 6, let int = UInt32(hex, radix: 16) else { return nil }
         self.init(

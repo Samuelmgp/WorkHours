@@ -28,6 +28,14 @@ extension Date {
         Calendar.current.dateInterval(of: .month, for: self)!.start
     }
     
+    var startOfDay: Date {
+        Calendar.current.startOfDay(for: self)
+    }
+    
+    var endOfDay: Date {
+        Calendar.current.dateInterval(of: .day, for: self)!.end
+    }
+    
     var endOfMonth: Date {
         let lastDay = Calendar.current.dateInterval(of: .month, for: self)!.end
         return Calendar.current.date(byAdding: .day, value: -1, to: lastDay)!
@@ -39,6 +47,10 @@ extension Date {
     
     var monthInt: Int {
         Calendar.current.component(.month, from: self)
+    }
+    
+    var dayInt: Int {
+        Calendar.current.component(.day, from: self)
     }
     
     var firstWeekDayBeforeStart: Date {
@@ -66,4 +78,5 @@ extension Date {
         }
         return days
     }
+    
 }

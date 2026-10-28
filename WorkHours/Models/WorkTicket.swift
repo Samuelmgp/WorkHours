@@ -33,7 +33,7 @@ enum PayArrangement {
 final class WorkTicket {
     var payPeriod: PayPeriod?
     
-    private var workDate: Date
+    var workDate: Date
     private var startTime: Date
     private var endTime: Date
     

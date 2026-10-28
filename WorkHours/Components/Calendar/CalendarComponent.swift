@@ -48,61 +48,31 @@ struct CalendarComponent: View {
             
             // Calendar Grid:
             LazyVGrid(columns: columns, spacing: 20){
+                
                 ForEach(daysOfTheWeek.indices, id: \.self){ index in
                     Text(daysOfTheWeek[index])
                         .font(.subheadline)
                 }
+                
                 ForEach(days, id: \.self){ day in
-                    RoundedRectangle(cornerRadius: 5)
-                        .frame(width: 35, height: 35)
-                        .foregroundStyle(backgroundStyle(for: day))
-                        .overlay {
-                            Text(day.formatted(.dateTime.day()))
-                                .foregroundStyle(textForegroundStyle(for: day))
-                        }
+                    DayComponent(date: day)
                 }
             }
         }
-        .padding()
+        .padding(.horizontal)
         .onAppear{
             updateDays()
         }
+    }
+    
+    private func isThisMonth(date: Date) -> Bool{
+        return date.monthInt == currentMonth.monthInt
     }
     
     private func updateDays() {
         days = currentMonth.calendarDisplayDays
     }
     
-    private func backgroundStyle(for day: Date) -> Color {
-        let isCurrentDate = Calendar.current.isDate(day, inSameDayAs: .now)
-        
-        let pastDays = day < Date.now
-        
-        let defaultReturn = {
-            if (isCurrentDate) {
-                return Color.accentColor.opacity(0.4)
-            }else if (pastDays) {
-                return Color.secondary.opacity(0.15)
-            }else {
-                return Color.secondary.opacity(0.2)
-            }
-        }
-        // Restructure displaying Pay Days
-        
-        return defaultReturn()
-    }
-    
-    private func textForegroundStyle(for day: Date) -> Color {
-        let isCurrentDate = Calendar.current.isDate(day, inSameDayAs: .now)
-        let isPastDate = day < Date.now.startOfMonth
-        if (isPastDate) {
-            return .primary.opacity(0.4)
-        } else if (isCurrentDate){
-            return .primary
-        } else {
-            return .primary.opacity(0.7)
-        }
-    }
 }
 
 #Preview {
