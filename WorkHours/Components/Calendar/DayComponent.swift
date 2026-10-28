@@ -8,18 +8,15 @@
 import SwiftUI
 import SwiftData
 
-struct DayComponentToday: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .backgroundStyle(.blue)
-            .foregroundStyle(.white)
-    }
-}
-
 struct DayComponent: View {
 
     private let date: Date
     private let numericDay: Int
+    
+    var backgroundStyle: Color
+    var boarderStyle: Color
+    var textStyle: Color
+    
 
     @Query private var workTickets: [WorkTicket]
 
@@ -31,9 +28,17 @@ struct DayComponent: View {
         Array(workTickets.prefix(3))
     }
 
-    init(date: Date = .now, numericDay: Int? = nil) {
+    init(date: Date = .now, numericDay: Int? = nil,
+         backgroundStyle: ((_ day: Date) -> Color)? = nil,
+         boarderStyle: ((_ day: Date) -> Color)? = nil,
+         textStyle: ((_ day: Date) -> Color)? = nil,
+    ) {
         self.date = date
         self.numericDay = numericDay ?? date.dayInt
+        self.backgroundStyle = backgroundStyle?(date) ?? Color.gray
+        self.boarderStyle = boarderStyle?(date) ?? Color.gray
+        self.textStyle = textStyle?(date) ?? Color.primary
+        
 
         let startOfDay = date.startOfDay
         let endOfDay = date.endOfDay
@@ -58,7 +63,7 @@ struct DayComponent: View {
                     ))
                     .offset(x: 5, y: 5)
                     .contentTransition(.numericText())
-                    .foregroundStyle(isToday ? .white : .primary)
+                    .foregroundStyle(textStyle)
             }
             // Employer indicators
             HStack(spacing: 2) {
@@ -85,24 +90,11 @@ struct DayComponent: View {
         .aspectRatio(1, contentMode: .fit)
         .background {
             RoundedRectangle(cornerRadius: 13, style: .continuous)
-                .fill(
-                    isToday
-                    ? Color.blue
-                    : Color.charlie.opacity(
-                        workTickets.isEmpty ? 0.35 : 0.7
-                    )
-                )
+                .fill(backgroundStyle)
         }
         .overlay {
             RoundedRectangle(cornerRadius: 13, style: .continuous)
-                .strokeBorder(
-                    isToday
-                    ? Color.blue
-                    : Color.primary.opacity(
-                        workTickets.isEmpty ? 0.04 : 0.06
-                    ),
-                    lineWidth: 1
-                )
+                .strokeBorder(boarderStyle)
         }
         .animation(.easeInOut(duration: 0.2), value: isToday)
         .accessibilityElement(children: .ignore)
@@ -128,21 +120,6 @@ struct DayComponent: View {
         }
 
         return "Day \(numericDay), \(ticketCount) work tickets"
-    }
-}
-
-struct WorkTicketIndicator: View {
-
-    let color: Color
-
-    var body: some View {
-        Circle()
-            .fill(color)
-            .frame(width: 5, height: 5)
-            .overlay {
-                Circle()
-                    .strokeBorder(color.opacity(0.15), lineWidth: 0.5)
-            }
     }
 }
 

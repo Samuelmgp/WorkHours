@@ -55,7 +55,12 @@ struct CalendarComponent: View {
                 }
                 
                 ForEach(days, id: \.self){ day in
-                    DayComponent(date: day)
+                    DayComponent(
+                        date: day,
+                        backgroundStyle: backgroundSyle(for:),
+                        boarderStyle: boarderStyle(for:),
+                        textStyle: textStyle(for:),
+                    )
                 }
             }
         }
@@ -65,8 +70,35 @@ struct CalendarComponent: View {
         }
     }
     
-    private func isThisMonth(date: Date) -> Bool{
-        return date.monthInt == currentMonth.monthInt
+    private func boarderStyle(for day: Date) -> Color {
+        let isToday = Calendar.current.isDateInToday(day)
+        if isToday {
+            return .blue.opacity(0.75)
+        } else {
+            return .primary.opacity(0.1)
+        }
+    }
+    
+    private func backgroundSyle(for day: Date) -> Color {
+        let isToday = Calendar.current.isDateInToday(day)
+        if isToday {
+            return .blue.opacity(0.55)
+        } else if day < currentMonth.startOfMonth {
+            return .gray.opacity(0.75)
+        } else {
+            return .gray.opacity(0.1)
+        }
+    }
+    
+    private func textStyle(for day: Date) -> Color {
+        let isToday = Calendar.current.isDateInToday(day)
+        if isToday {
+            return .white
+        } else if day < currentMonth.startOfMonth {
+            return .primary.opacity(0.4)
+        } else {
+            return .primary
+        }
     }
     
     private func updateDays() {
