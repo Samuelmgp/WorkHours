@@ -83,7 +83,7 @@ struct CalendarComponent: View {
         let isToday = Calendar.current.isDateInToday(day)
         if isToday {
             return .blue.opacity(0.55)
-        } else if day < currentMonth.startOfMonth {
+        } else if day < currentMonth.startOfMonth || day > currentMonth.endOfMonth {
             return .gray.opacity(0.75)
         } else {
             return .gray.opacity(0.1)
@@ -94,7 +94,7 @@ struct CalendarComponent: View {
         let isToday = Calendar.current.isDateInToday(day)
         if isToday {
             return .white
-        } else if day < currentMonth.startOfMonth {
+        } else if day < currentMonth.startOfMonth || day > currentMonth.endOfMonth {
             return .primary.opacity(0.4)
         } else {
             return .primary

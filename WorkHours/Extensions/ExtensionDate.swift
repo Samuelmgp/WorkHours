@@ -62,20 +62,38 @@ extension Date {
         return Calendar.current.date(byAdding: .day, value: -numberFromPreviousMonth, to: startOfMonth)!
     }
     
+    var lastWeekDayFiller: Date {
+        let endOfMonthWeekday = Calendar.current.component(.weekday, from: endOfMonth)
+        let daysRemaining =  7 - endOfMonthWeekday
+        let lastDayOfTheWeek = Calendar.current.date(byAdding: .day, value: daysRemaining + 1, to: endOfMonth)!
+
+        return lastDayOfTheWeek.startOfDay
+    }
+    
     var calendarDisplayDays: [Date] {
         var days: [Date] = []
         let firstDisplayDay = firstWeekDayBeforeStart
         var day = firstDisplayDay
+        // Days prior to Start of the Month
         while day < startOfMonth {
             days.append(day)
             day = Calendar.current.date(byAdding: .day, value: 1, to: day)!
         }
         
+        // Days of the month
         for dayOffset in 0..<numberOfDaysInMonth {
             if let newDay = Calendar.current.date(byAdding: .day, value: dayOffset, to: startOfMonth) {
                 days.append(newDay)
             }
         }
+        
+        // Filler days if any
+        day = Calendar.current.date(byAdding: .day, value: 1, to: endOfMonth)!
+        while day < lastWeekDayFiller {
+            days.append(day)
+            day = Calendar.current.date(byAdding: .day, value: 1, to: day)!
+        }
+        
         return days
     }
     
