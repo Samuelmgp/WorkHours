@@ -18,21 +18,21 @@ struct WorkSummaryCard: View {
     init(ticket: WorkTicket) {
         self.ticket = ticket
         self.date = ticket.getWorkDate().formatted(date: .numeric, time: .omitted)
-        self.hours = ticket.getHoursWorkedFormattedHM()
+        self.hours = ticket.getHoursWorked().formatted(.number.precision(.fractionLength(2)))
         self.timeIn = ticket.getStartTime().formatted(date: .omitted, time: .shortened)
         self.timeOut = ticket.getEndTime().formatted(date: .omitted, time: .shortened)
     }
     
     var body: some View {
         HStack {
-            VStack (alignment: .leading, spacing: 5) {
+            VStack(alignment: .leading, spacing: 5) {
+                Label("\(date)", systemImage: "calendar")
                 Label("Start: \(timeIn)", systemImage: "hourglass")
-                Label("End: \(timeOut)", systemImage: "hourglass.bottomhalf.fill")
             }
             Spacer()
-            VStack(alignment: .trailing, spacing: 5){
-                Label("\(date)", systemImage: "calendar")
-                Label("Hours: \(hours)", systemImage: "clock")
+            VStack(alignment: .leading, spacing: 5){
+                Label("\(hours)", systemImage: "clock")
+                Label("End: \(timeOut)", systemImage: "hourglass.bottomhalf.fill")
             }
         }
     }
