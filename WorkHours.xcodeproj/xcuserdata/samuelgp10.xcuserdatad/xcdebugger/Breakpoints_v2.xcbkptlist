@@ -36,5 +36,51 @@
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A31EB446-62C6-40EA-8239-007B1CAD28D0"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "WorkHours/Extensions/ExtensionDate.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "92"
+            endingLineNumber = "92"
+            landmarkName = "calendarDisplayDays"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "A31EB446-62C6-40EA-8239-007B1CAD28D0 - 109d7cbe3415ad27"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Foundation.Date.calendarDisplayDays.getter : Swift.Array&lt;Foundation.Date&gt;"
+                  moduleName = "WorkHours.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/samuelgp10/Desktop/Projects/XCodeApplications/WorkHours/WorkHours/WorkHours/Extensions/ExtensionDate.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "88"
+                  endingLineNumber = "88">
+               </Location>
+               <Location
+                  uuid = "A31EB446-62C6-40EA-8239-007B1CAD28D0 - 109d7cbe3415ad27"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Foundation.Date.calendarDisplayDays.getter : Swift.Array&lt;Foundation.Date&gt;"
+                  moduleName = "WorkHours.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/samuelgp10/Desktop/Projects/XCodeApplications/WorkHours/WorkHours/WorkHours/Extensions/ExtensionDate.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "88"
+                  endingLineNumber = "88">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

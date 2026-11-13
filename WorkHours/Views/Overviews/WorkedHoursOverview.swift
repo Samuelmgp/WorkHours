@@ -45,6 +45,7 @@ struct WorkedHoursOverview: View {
                 HSText(lhText: "End Time", rhText: ticket.getEndTime().formatted(date: .omitted, time: .standard), systemImage: "clock")
                     .listRowSeparator(.visible, edges: .bottom)
                 HSText(lhText: "Hours", rhText: ticket.getHoursWorked().formatted(.number.precision(.fractionLength(2))), systemImage: "timelapse")
+                HSText(lhText: "Total Time (HH:MM)", rhText: ticket.getHoursWorkedFormattedHM(), systemImage: "person.badge.clock")
             }
             .listRowSeparator(.hidden)
             .listRowBackground(Color.clear)
