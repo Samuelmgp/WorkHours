@@ -28,6 +28,14 @@ extension Date {
         Calendar.current.dateInterval(of: .month, for: self)!.start
     }
     
+    var startOfDay: Date {
+        Calendar.current.startOfDay(for: self)
+    }
+    
+    var endOfDay: Date {
+        Calendar.current.dateInterval(of: .day, for: self)!.end
+    }
+    
     var endOfMonth: Date {
         let lastDay = Calendar.current.dateInterval(of: .month, for: self)!.end
         return Calendar.current.date(byAdding: .day, value: -1, to: lastDay)!
@@ -41,6 +49,10 @@ extension Date {
         Calendar.current.component(.month, from: self)
     }
     
+    var dayInt: Int {
+        Calendar.current.component(.day, from: self)
+    }
+    
     var firstWeekDayBeforeStart: Date {
         let startOfMonthWeekday = Calendar.current.component(.weekday, from: startOfMonth)
         var numberFromPreviousMonth = startOfMonthWeekday - Self.firstDayOfWeek
@@ -50,20 +62,39 @@ extension Date {
         return Calendar.current.date(byAdding: .day, value: -numberFromPreviousMonth, to: startOfMonth)!
     }
     
+    var lastWeekDayFiller: Date {
+        let endOfMonthWeekday = Calendar.current.component(.weekday, from: endOfMonth)
+        let daysRemaining =  7 - endOfMonthWeekday
+        let lastDayOfTheWeek = Calendar.current.date(byAdding: .day, value: daysRemaining + 1, to: endOfMonth)!
+
+        return lastDayOfTheWeek.startOfDay
+    }
+    
     var calendarDisplayDays: [Date] {
         var days: [Date] = []
         let firstDisplayDay = firstWeekDayBeforeStart
         var day = firstDisplayDay
+        // Days prior to Start of the Month
         while day < startOfMonth {
             days.append(day)
             day = Calendar.current.date(byAdding: .day, value: 1, to: day)!
         }
         
+        // Days of the month
         for dayOffset in 0..<numberOfDaysInMonth {
             if let newDay = Calendar.current.date(byAdding: .day, value: dayOffset, to: startOfMonth) {
                 days.append(newDay)
             }
         }
+        
+        // Filler days if any
+        day = Calendar.current.date(byAdding: .day, value: 1, to: endOfMonth)!
+        while day < lastWeekDayFiller {
+            days.append(day)
+            day = Calendar.current.date(byAdding: .day, value: 1, to: day)!
+        }
+        
         return days
     }
+    
 }

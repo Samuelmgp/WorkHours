@@ -12,6 +12,7 @@ import SwiftData
 final class EmployerModel {
     
     var employerName: String
+    var employerColor: String?
     private var employedSince: Date
     
     private var wage: Double?
@@ -24,8 +25,9 @@ final class EmployerModel {
     @Relationship(deleteRule: .cascade, inverse: \PayPeriod.employer)
     private var PayPeriods: [PayPeriod]
     
-    init(employerName: String, employedSince: Date, payPeriodFrequency: PayFrequency, wage: Double? = nil, hourRounding: WorkHoursRoundingOptions, currentPayPeriodStart: Date, currentPayPeriodEnd: Date, PayPeriods: [PayPeriod] = []) {
+    init(employerName: String, employedSince: Date, payPeriodFrequency: PayFrequency, wage: Double? = nil, hourRounding: WorkHoursRoundingOptions, currentPayPeriodStart: Date, currentPayPeriodEnd: Date, PayPeriods: [PayPeriod] = [], employerColor: String = "") {
         self.employerName = employerName
+        self.employerColor = employerColor
         self.employedSince = employedSince
         self.payPeriodFrequency = payPeriodFrequency
         self.wage = wage

@@ -19,6 +19,8 @@ struct EmployerView: View {
     private var payPeriodSnapshot: PayPeriodSnapshot?
     private var nextPayPeriodSnapshot: PayPeriodSnapshot?
     
+    @State private var employerColor: Color
+    
     @State private var isEditing: Bool = false
     @State private var isProcessing: Bool = false
     
@@ -27,32 +29,48 @@ struct EmployerView: View {
         self.employerDetails = employer.getDetails()
         self.payPeriodSnapshot = employer.getCurrentPayPeriod()
         self.nextPayPeriodSnapshot = employer.getNextPayPeriod()
+        if let color = employer.employerColor {
+            employerColor = Color(hex: color) ?? .clear
+        } else {
+            employerColor = .clear
+        }
     }
     
     var body: some View {
         List {
-            isEditing == false ? nil :
-            Section("Danger Zone"){
-                Button("Delete Employer"){
-                    deleteEmployer()
-                }
-                .buttonSizing(.flexible)
-                .buttonStyle(.borderedProminent)
-                .tint(.red)
-                .disabled(isProcessing)
-            }
-            .listRowBackground(Color.clear)
-            
-            
             Section ("Details"){
                 Group {
                     Text("Employer: \(employer.employerName)")
                     Text("Worked Here: \(employerDetails.getEmployedSinceFormatted())")
+                    HStack {
+                        Text("Color")
+                        Spacer()
+                        RoundedRectangle(cornerRadius: 12)
+                            .foregroundStyle(employerColor)
+                    }
                 }
                 .font(.system(size: 18, weight: .semibold))
             }
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
+            
+            isEditing == false ? nil :
+            Group {
+                Section("Employer Color"){
+                    ColorPicker("Color", selection: $employerColor, supportsOpacity: false)
+                        .pickerStyle(.palette)
+                }
+                Section("Danger Zone"){
+                    Button("Delete Employer"){
+                        deleteEmployer()
+                    }
+                    .buttonSizing(.flexible)
+                    .buttonStyle(.borderedProminent)
+                    .tint(.red)
+                    .disabled(isProcessing)
+                }
+            }
+            .listRowBackground(Color.clear)
             
             Section ("Current Pay Period"){
                 HSText(lhText: "Start", rhText: "\(payPeriodSnapshot?.payPeriodStart.formatted(date: .abbreviated, time: .standard) ?? "Undetermined")", systemImage: "calendar")
@@ -81,13 +99,22 @@ struct EmployerView: View {
         .navigationSubtitle("Employer Since: \(employerDetails.employedSince.formatted(date: .abbreviated, time: .omitted))")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing){
-                Button("Delete"){
-                    isEditing = true
+                Button(isEditing ? "Save" : "Edit"){
+                    if isEditing {
+                        isEditing = false
+                        updateEmployer()
+                    } else {
+                        isEditing = true
+                    }
                 }
-                .tint(.red)
                 .disabled(isProcessing)
             }
         }
+    }
+    
+    private func updateEmployer() {
+        employer.employerColor = employerColor.hexString
+        try? context.save()
     }
     
     private func deleteEmployer(){

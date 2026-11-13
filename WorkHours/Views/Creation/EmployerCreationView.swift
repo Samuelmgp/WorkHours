@@ -15,6 +15,7 @@ struct EmployerCreationView: View {
     
     @State private var employer: String = ""
     @State private var employedDate: Date = .now
+    @State private var colorOption: Color = .clear
     @State private var wage: Double = 0.0
     @State private var hoursRounding: WorkHoursRoundingOptions = .none
     
@@ -43,6 +44,8 @@ struct EmployerCreationView: View {
                     .textInputAutocapitalization(.words)
                     
                 DatePicker("Employment Started", selection: $employedDate, displayedComponents: .date)
+                
+                ColorPicker("Employer Color", selection: $colorOption, supportsOpacity: false)
             }
             
             Section("Pay Period Details"){
@@ -101,8 +104,10 @@ struct EmployerCreationView: View {
         
         // Otherwise:
         let wage = { wage <= 0 ? nil : wage}
+        // Convert color to string:
+        let color = colorOption.description
         
-        let model = EmployerModel(employerName: employer, employedSince: employedDate, payPeriodFrequency: payFrequency, wage: wage(), hourRounding: hoursRounding, currentPayPeriodStart: firstPayPeriodStart, currentPayPeriodEnd: firstPayPeriodEnd)
+        let model = EmployerModel(employerName: employer, employedSince: employedDate, payPeriodFrequency: payFrequency, wage: wage(), hourRounding: hoursRounding, currentPayPeriodStart: firstPayPeriodStart, currentPayPeriodEnd: firstPayPeriodEnd, employerColor: color)
         
         context.insert(model)
         

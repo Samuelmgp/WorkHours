@@ -38,7 +38,7 @@ struct PayPeriodView: View {
                     Section ("Current Period"){
                         ForEach(currentPayPeriods, id: \.persistentModelID) { period in
                             NavigationLink(destination: PayPeriodOverview(payPeriod: period)){
-                                PayPeriodComponent(payPeriod: period)
+                                PayPeriodCard(payPeriod: period)
                             }
                         }
                     }
@@ -50,7 +50,7 @@ struct PayPeriodView: View {
                     Section("Previous"){
                         ForEach(pastPayPeriods, id: \.persistentModelID) { period in
                             NavigationLink(destination: PayPeriodOverview(payPeriod: period)){
-                                PayPeriodComponent(payPeriod: period)
+                                PayPeriodCard(payPeriod: period)
                             }
                         }
                     }

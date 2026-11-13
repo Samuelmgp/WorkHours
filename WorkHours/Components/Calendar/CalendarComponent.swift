@@ -48,24 +48,56 @@ struct CalendarComponent: View {
             
             // Calendar Grid:
             LazyVGrid(columns: columns, spacing: 20){
+                
                 ForEach(daysOfTheWeek.indices, id: \.self){ index in
                     Text(daysOfTheWeek[index])
                         .font(.subheadline)
                 }
+                
                 ForEach(days, id: \.self){ day in
-                    RoundedRectangle(cornerRadius: 5)
-                        .frame(width: 35, height: 35)
-                        .foregroundStyle(backgroundStyle(for: day))
-                        .overlay {
-                            Text(day.formatted(.dateTime.day()))
-                                .foregroundStyle(textForegroundStyle(for: day))
-                        }
+                    DayComponent(
+                        date: day,
+                        backgroundStyle: backgroundSyle(for:),
+                        boarderStyle: boarderStyle(for:),
+                        textStyle: textStyle(for:),
+                    )
                 }
             }
         }
-        .padding()
+        .padding(.horizontal)
         .onAppear{
             updateDays()
+        }
+    }
+    
+    private func boarderStyle(for day: Date) -> Color {
+        let isToday = Calendar.current.isDateInToday(day)
+        if isToday {
+            return .blue.opacity(0.75)
+        } else {
+            return .primary.opacity(0.1)
+        }
+    }
+    
+    private func backgroundSyle(for day: Date) -> Color {
+        let isToday = Calendar.current.isDateInToday(day)
+        if isToday {
+            return .blue.opacity(0.55)
+        } else if day < currentMonth.startOfMonth || day > currentMonth.endOfMonth {
+            return .gray.opacity(0.75)
+        } else {
+            return .gray.opacity(0.1)
+        }
+    }
+    
+    private func textStyle(for day: Date) -> Color {
+        let isToday = Calendar.current.isDateInToday(day)
+        if isToday {
+            return .white
+        } else if day < currentMonth.startOfMonth || day > currentMonth.endOfMonth {
+            return .primary.opacity(0.4)
+        } else {
+            return .primary
         }
     }
     
@@ -73,36 +105,6 @@ struct CalendarComponent: View {
         days = currentMonth.calendarDisplayDays
     }
     
-    private func backgroundStyle(for day: Date) -> Color {
-        let isCurrentDate = Calendar.current.isDate(day, inSameDayAs: .now)
-        
-        let pastDays = day < Date.now
-        
-        let defaultReturn = {
-            if (isCurrentDate) {
-                return Color.accentColor.opacity(0.4)
-            }else if (pastDays) {
-                return Color.secondary.opacity(0.15)
-            }else {
-                return Color.secondary.opacity(0.2)
-            }
-        }
-        // Restructure displaying Pay Days
-        
-        return defaultReturn()
-    }
-    
-    private func textForegroundStyle(for day: Date) -> Color {
-        let isCurrentDate = Calendar.current.isDate(day, inSameDayAs: .now)
-        let isPastDate = day < Date.now.startOfMonth
-        if (isPastDate) {
-            return .primary.opacity(0.4)
-        } else if (isCurrentDate){
-            return .primary
-        } else {
-            return .primary.opacity(0.7)
-        }
-    }
 }
 
 #Preview {

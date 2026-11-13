@@ -29,7 +29,7 @@ struct PayPeriodList: View {
             if (!payPeriods.isEmpty){
                 Section("Current"){
                     NavigationLink(destination: PayPeriodOverview(payPeriod: payPeriods[0]), label: {
-                        PayPeriodComponent(payPeriod: payPeriods[0])
+                        PayPeriodCard(payPeriod: payPeriods[0])
                     })
                 }
                 
@@ -38,7 +38,7 @@ struct PayPeriodList: View {
                         ForEach(payPeriods, id: \.self){ period in
                             if (period != payPeriods.first){
                                 NavigationLink(destination: PayPeriodOverview(payPeriod: period), label: {
-                                    PayPeriodComponent(payPeriod: period)
+                                    PayPeriodCard(payPeriod: period)
                                 })
                             }
                         }
