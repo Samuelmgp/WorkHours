@@ -9,13 +9,19 @@ import SwiftUI
 
 struct UserInformation: View {
     
-    @Bindable private var user: UserModel
-    @Binding private var userPerformedDeletedAccount: Bool
-
+    private var user: UserModel
+    @State private var userPerformedDeletedAccount: Bool = false
     
-    init(user: UserModel, userPerformedDeleteAccount: Binding<Bool>) {
+    @State private var trackTravel: Bool
+    @State private var deletePastPayPeriods: Bool
+    @State private var deletableAfter: DeletableAfter
+    
+    
+    init(user: UserModel) {
         self.user = user
-        self._userPerformedDeletedAccount = userPerformedDeleteAccount
+        self.trackTravel = user.trackTravelTime
+        self.deletePastPayPeriods = user.deletePastPayPeriods
+        self.deletableAfter = user.deletePayPeriodAfter
     }
     
     var body: some View {
@@ -25,11 +31,28 @@ struct UserInformation: View {
                 Text("Last Name: \(user.lastName)")
             }
             
-            Section("Settings"){
+            Section("Travel Tracking"){
                 
-                Toggle(isOn: $user.trackTravelTime, label: { Label("Track Travel Time", systemImage: "clock")})
+                Toggle(isOn: $trackTravel, label: { Label("Track Travel Time", systemImage: "clock")})
                     .listRowSeparator(.hidden)
 
+            }
+            
+            Section("Pay Period Settings"){
+                Toggle(isOn: $deletePastPayPeriods, label: {Label("Delete Pay Periods", systemImage: "calendar")})
+                    .onChange(of: user.deletePastPayPeriods, { UserManager.shared.saveUser(user) })
+                
+                deletePastPayPeriods == true ? Picker(selection: $deletableAfter){
+                    ForEach(DeletableAfter.allCases, id: \.self){ o in
+                        Text(o.rawValue)
+                    }
+                } label: {
+                    Label("Delete After", systemImage: "exclamationmark.circle")
+                }
+                .onSubmit {
+                    UserManager.shared.saveUser(user)
+                }
+                : nil
             }
             
             Section("Danger Zone"){
@@ -46,6 +69,9 @@ struct UserInformation: View {
             .listRowSeparator(.hidden)
         }
         .navigationTitle("Profile")
+        .fullScreenCover(isPresented: $userPerformedDeletedAccount, content: {
+            DeleteAccountOverview(isPresented: $userPerformedDeletedAccount, user: user as (UserModel?))
+        })
     }
 }
 
@@ -53,6 +79,6 @@ struct UserInformation: View {
     @Previewable @State var delete: Bool = false
     @Previewable var user = UserModel(firstName: "Example", lastName: "Test", trackTravelTime: false)
     NavigationView {
-        UserInformation(user: user, userPerformedDeleteAccount: $delete)
+        UserInformation(user: user)
     }
 }

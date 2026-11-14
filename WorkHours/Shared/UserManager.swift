@@ -6,11 +6,12 @@
 //
 
 import Foundation
-
+import Observation
 /**
  * User Manager Singleton Class
  * This class is designed for the purpose of maintain a globalized user state.
  */
+@Observable
 final class UserManager {
     private init(){ }
     private let USER_DATA = "user_data"

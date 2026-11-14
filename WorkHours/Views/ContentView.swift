@@ -12,15 +12,16 @@ struct ContentView: View {
     
     @Query(sort: \EmployerModel.employerName ) private var employers: [EmployerModel] = []
     
-    @State private var user: UserModel? = UserManager.shared.loadUser()
     @State private var onBoardingComplete = false
     
     var body: some View {
+        let user = UserManager.shared.loadUser()
+        
         Group {
             if (user == nil && onBoardingComplete == false){
                 OnboardingView(onboardingComplete: $onBoardingComplete)
             } else {
-                MainTabView(user: $user)
+                MainTabView()
                     .onAppear {
                         // Verify that pay periods are all up to date
                         // This will only work for next consecutive pay period.

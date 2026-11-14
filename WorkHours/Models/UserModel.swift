@@ -6,8 +6,30 @@
 //
 
 import Foundation
-import SwiftData
-import Combine
+
+final class UserModel: Codable {
+    var firstName: String
+    var lastName: String
+    
+    // MARK: Modifiable Settings:
+    var trackTravelTime: Bool
+    
+    /// Pay period global settings
+    var deletePastPayPeriods: Bool
+    var deletePayPeriodAfter: DeletableAfter
+    
+    
+    init(firstName: String, lastName: String, trackTravelTime: Bool) {
+        self.firstName = firstName
+        self.lastName = lastName
+        // Settings
+        self.trackTravelTime = trackTravelTime
+        self.deletePastPayPeriods = false
+        self.deletePayPeriodAfter = .never
+    }
+}
+
+// MARK: Enums associated with UserModel
 
 enum PayFrequency: String, CaseIterable, Codable {
     case none = "None"
@@ -17,15 +39,11 @@ enum PayFrequency: String, CaseIterable, Codable {
     case monthly = "Monthly"
 }
 
-final class UserModel: Codable, Observable {
-    var firstName: String
-    var lastName: String
-    var trackTravelTime: Bool
-    
-    
-    init(firstName: String, lastName: String, trackTravelTime: Bool) {
-        self.firstName = firstName
-        self.lastName = lastName
-        self.trackTravelTime = trackTravelTime
-    }
+enum DeletableAfter: String, CaseIterable, Codable {
+    case never = "N/A"
+    case month = "a Month"
+    case trimester = "3 Months"
+    case quarterly = "4 Months"
+    case semi_annually = "6 Months"
+    case annually = "A Year"
 }

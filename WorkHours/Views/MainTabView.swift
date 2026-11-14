@@ -9,12 +9,6 @@ import SwiftUI
 
 struct MainTabView: View {
     
-    @Binding private var user: UserModel?
-    
-    init(user: Binding<UserModel?>) {
-        self._user = user
-    }
-    
     var body: some View {
         TabView {
             Tab("Home", systemImage: "house"){
@@ -37,7 +31,7 @@ struct MainTabView: View {
             
             Tab("Profile", systemImage: "person"){
                 NavigationView {
-                    ProfileView(user: $user)
+                    ProfileView()
                 }
             }
         }
@@ -45,7 +39,5 @@ struct MainTabView: View {
 }
 
 #Preview {
-    @Previewable @State var user: UserModel? = UserModel(firstName: "Example", lastName: "Tester", trackTravelTime: true)
-    
-    MainTabView(user: $user)
+    MainTabView()
 }

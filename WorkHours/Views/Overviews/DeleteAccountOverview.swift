@@ -15,11 +15,11 @@ struct DeleteAccountOverview: View {
     @State var debounce: Bool = false
     
     @Binding var isPresented: Bool
-    @Binding private var user: UserModel?
+    private var user: UserModel?
     
-    init(isPresented: Binding<Bool>, user: Binding<UserModel?>) {
+    init(isPresented: Binding<Bool>, user: UserModel?) {
         self._isPresented = isPresented
-        self._user = user
+        self.user = user
     }
     
     var body: some View {
@@ -61,8 +61,6 @@ struct DeleteAccountOverview: View {
         do {
             try context.delete(model: EmployerModel.self)
             UserManager.shared.deleteUser()
-
-            user = nil
             
             try context.save()
             isPresented = false
@@ -76,5 +74,5 @@ struct DeleteAccountOverview: View {
     @Previewable @State var isPresented: Bool = true
     @Previewable @State var user: UserModel? = nil
     
-    DeleteAccountOverview(isPresented: $isPresented, user: $user)
+    DeleteAccountOverview(isPresented: $isPresented, user: user)
 }
