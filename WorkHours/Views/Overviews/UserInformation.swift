@@ -35,12 +35,19 @@ struct UserInformation: View {
                 
                 Toggle(isOn: $trackTravel, label: { Label("Track Travel Time", systemImage: "clock")})
                     .listRowSeparator(.hidden)
-
+                    .onChange(of: trackTravel) {
+                        user.trackTravelTime = trackTravel
+                        UserManager.shared.saveUser(user)
+                    }
+                
             }
             
             Section("Pay Period Settings"){
                 Toggle(isOn: $deletePastPayPeriods, label: {Label("Delete Pay Periods", systemImage: "calendar")})
-                    .onChange(of: user.deletePastPayPeriods, { UserManager.shared.saveUser(user) })
+                    .onChange(of: deletePastPayPeriods) {
+                        user.deletePastPayPeriods = deletePastPayPeriods
+                        UserManager.shared.saveUser(user)
+                    }
                 
                 deletePastPayPeriods == true ? Picker(selection: $deletableAfter){
                     ForEach(DeletableAfter.allCases, id: \.self){ o in
@@ -49,7 +56,8 @@ struct UserInformation: View {
                 } label: {
                     Label("Delete After", systemImage: "exclamationmark.circle")
                 }
-                .onSubmit {
+                .onChange(of: deletableAfter) {
+                    user.deletePayPeriodAfter = deletableAfter
                     UserManager.shared.saveUser(user)
                 }
                 : nil
